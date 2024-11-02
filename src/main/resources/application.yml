@@ -17,6 +17,11 @@ spring:
             non_contextual_creation: true
         id:
           new_generator_mappings: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/Elite-Gear
   docker:
     compose:
       lifecycle-management: start-only
