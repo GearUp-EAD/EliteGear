@@ -2,7 +2,7 @@ spring:
   datasource:
     url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/EliteGear}
     username: ${JDBC_DATABASE_USERNAME:postgres}
-    password: ${JDBC_DATABASE_PASSWORD:<<YOUR_PASSWORD>>}
+    password: ${JDBC_DATABASE_PASSWORD:P4ssword!}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
@@ -39,3 +39,12 @@ error:
       OrderShippingUnique: ORDER_SHIPPING_UNIQUE
 springdoc:
   pathsToMatch: /, /api/**
+
+keycloak:
+  auth-server-url: http://localhost:8081
+  realm: Elite-Gear
+  client-id: Elite-Gear
+  client-secret: mgQ8X0lKWgi0M6Fxc9ezOmbPnBmtYlQT
+  admin:
+    username: admin
+    password: 12345
