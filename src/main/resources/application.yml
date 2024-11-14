@@ -48,3 +48,8 @@ keycloak:
   admin:
     username: admin
     password: 12345
+
+
+stripe:
+  secret:
+    key: sk_test_51QKG2bCmGq871jAEaUwWAqLQdLQzHflVtP5khHAhQFwPEr6q71VwZhFa4uI4FYGLs8csyA0j9eWAq8xLimLREGBU002iDZ7DhK
