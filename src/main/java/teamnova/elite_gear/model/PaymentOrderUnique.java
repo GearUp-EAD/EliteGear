@@ -16,34 +16,34 @@ import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.web.servlet.HandlerMapping;
-import teamnova.elite_gear.service.OrderService;
+import teamnova.elite_gear.service.PaymentService;
 
 
 /**
- * Validate that the id value isn't taken yet.
+ * Validate that the orderID value isn't taken yet.
  */
 @Target({ FIELD, METHOD, ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(
-        validatedBy = OrderPaymentUnique.OrderPaymentUniqueValidator.class
+        validatedBy = PaymentOrderUnique.PaymentOrderUniqueValidator.class
 )
-public @interface OrderPaymentUnique {
+public @interface PaymentOrderUnique {
 
-    String message() default "{Exists.order.payment}";
+    String message() default "{Exists.payment.order}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    class OrderPaymentUniqueValidator implements ConstraintValidator<OrderPaymentUnique, UUID> {
+    class PaymentOrderUniqueValidator implements ConstraintValidator<PaymentOrderUnique, UUID> {
 
-        private final OrderService orderService;
+        private final PaymentService paymentService;
         private final HttpServletRequest request;
 
-        public OrderPaymentUniqueValidator(final OrderService orderService,
-                final HttpServletRequest request) {
-            this.orderService = orderService;
+        public PaymentOrderUniqueValidator(final PaymentService paymentService,
+                                           final HttpServletRequest request) {
+            this.paymentService = paymentService;
             this.request = request;
         }
 
@@ -55,12 +55,12 @@ public @interface OrderPaymentUnique {
             }
             @SuppressWarnings("unchecked") final Map<String, String> pathVariables =
                     ((Map<String, String>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE));
-            final String currentId = pathVariables.get("orderID");
-            if (currentId != null && value.equals(orderService.get(UUID.fromString(currentId)).getPayment())) {
+            final String currentId = pathVariables.get("id");
+            if (currentId != null && value.equals(paymentService.get(UUID.fromString(currentId)).getOrder())) {
                 // value hasn't changed
                 return true;
             }
-            return !orderService.paymentExists(value);
+            return !paymentService.orderExists(value);
         }
 
     }

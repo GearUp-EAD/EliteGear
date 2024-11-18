@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import teamnova.elite_gear.model.PaymentDTO;
 import teamnova.elite_gear.service.PaymentService;
-import teamnova.elite_gear.util.ReferencedException;
-import teamnova.elite_gear.util.ReferencedWarning;
 
 
 @RestController
@@ -48,9 +46,10 @@ public class PaymentResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<UUID> updatePayment(@PathVariable(name = "id") final UUID id,
-            @RequestBody @Valid final PaymentDTO paymentDTO) {
+                                              @RequestBody @Valid final PaymentDTO paymentDTO) {
         paymentService.update(id, paymentDTO);
         return ResponseEntity.ok(id);
     }
@@ -58,10 +57,6 @@ public class PaymentResource {
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deletePayment(@PathVariable(name = "id") final UUID id) {
-        final ReferencedWarning referencedWarning = paymentService.getReferencedWarning(id);
-        if (referencedWarning != null) {
-            throw new ReferencedException(referencedWarning);
-        }
         paymentService.delete(id);
         return ResponseEntity.noContent().build();
     }

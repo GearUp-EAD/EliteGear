@@ -41,10 +41,6 @@ public class Order {
     private Customer customer;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", unique = true)
-    private Payment payment;
-
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_id", unique = true)
     private Shipping shipping;
 

@@ -33,6 +33,7 @@ public class WebSocketTestController {
         MessageResponse testMessage = new MessageResponse(
                 "Test message from server at: " + new Date()
         );
+        System.out.println("Sending test message: " + testMessage);
         messagingTemplate.convertAndSend("/topic/test-response", testMessage);
         return "Test message sent";
     }

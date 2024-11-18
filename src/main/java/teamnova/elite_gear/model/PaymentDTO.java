@@ -20,4 +20,7 @@ public class PaymentDTO {
     @Size(max = 20)
     private String paymentMethod;
 
+    @PaymentOrderUnique
+    private UUID order;
+
 }

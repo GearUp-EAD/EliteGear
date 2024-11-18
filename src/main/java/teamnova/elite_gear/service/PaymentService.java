@@ -10,7 +10,6 @@ import teamnova.elite_gear.model.PaymentDTO;
 import teamnova.elite_gear.repos.OrderRepository;
 import teamnova.elite_gear.repos.PaymentRepository;
 import teamnova.elite_gear.util.NotFoundException;
-import teamnova.elite_gear.util.ReferencedWarning;
 
 
 @Service
@@ -20,7 +19,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
 
     public PaymentService(final PaymentRepository paymentRepository,
-            final OrderRepository orderRepository) {
+                          final OrderRepository orderRepository) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
     }
@@ -60,6 +59,7 @@ public class PaymentService {
         paymentDTO.setPaymentDate(payment.getPaymentDate());
         paymentDTO.setPaymentAmount(payment.getPaymentAmount());
         paymentDTO.setPaymentMethod(payment.getPaymentMethod());
+        paymentDTO.setOrder(payment.getOrder() == null ? null : payment.getOrder().getOrderID());
         return paymentDTO;
     }
 
@@ -67,20 +67,14 @@ public class PaymentService {
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setPaymentAmount(paymentDTO.getPaymentAmount());
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+        final Order order = paymentDTO.getOrder() == null ? null : orderRepository.findById(paymentDTO.getOrder())
+                .orElseThrow(() -> new NotFoundException("order not found"));
+        payment.setOrder(order);
         return payment;
     }
 
-    public ReferencedWarning getReferencedWarning(final UUID id) {
-        final ReferencedWarning referencedWarning = new ReferencedWarning();
-        final Payment payment = paymentRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
-        final Order paymentOrder = orderRepository.findFirstByPayment(payment);
-        if (paymentOrder != null) {
-            referencedWarning.setKey("payment.order.payment.referenced");
-            referencedWarning.addParam(paymentOrder.getOrderID());
-            return referencedWarning;
-        }
-        return null;
+    public boolean orderExists(final UUID orderID) {
+        return paymentRepository.existsByOrderOrderID(orderID);
     }
 
 }

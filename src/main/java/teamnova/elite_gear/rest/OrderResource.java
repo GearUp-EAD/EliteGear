@@ -50,7 +50,7 @@ public class OrderResource {
 
     @PutMapping("/{orderID}")
     public ResponseEntity<UUID> updateOrder(@PathVariable(name = "orderID") final UUID orderID,
-            @RequestBody @Valid final OrderDTO orderDTO) {
+                                            @RequestBody @Valid final OrderDTO orderDTO) {
         orderService.update(orderID, orderDTO);
         return ResponseEntity.ok(orderID);
     }

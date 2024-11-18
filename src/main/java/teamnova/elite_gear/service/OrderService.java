@@ -24,19 +24,20 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
-    private final PaymentRepository paymentRepository;
     private final ShippingRepository shippingRepository;
     private final OrderItemRepository orderItemRepository;
+    private final PaymentRepository paymentRepository;
 
     public OrderService(final OrderRepository orderRepository,
-            final CustomerRepository customerRepository, final PaymentRepository paymentRepository,
-            final ShippingRepository shippingRepository,
-            final OrderItemRepository orderItemRepository) {
+                        final CustomerRepository customerRepository,
+                        final ShippingRepository shippingRepository,
+                        final OrderItemRepository orderItemRepository,
+                        final PaymentRepository paymentRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
-        this.paymentRepository = paymentRepository;
         this.shippingRepository = shippingRepository;
         this.orderItemRepository = orderItemRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public List<OrderDTO> findAll() {
@@ -75,7 +76,6 @@ public class OrderService {
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
         orderDTO.setCustomer(order.getCustomer() == null ? null : order.getCustomer().getCustomerID());
-        orderDTO.setPayment(order.getPayment() == null ? null : order.getPayment().getId());
         orderDTO.setShipping(order.getShipping() == null ? null : order.getShipping().getShippingID());
         return orderDTO;
     }
@@ -87,17 +87,10 @@ public class OrderService {
         final Customer customer = orderDTO.getCustomer() == null ? null : customerRepository.findById(orderDTO.getCustomer())
                 .orElseThrow(() -> new NotFoundException("customer not found"));
         order.setCustomer(customer);
-        final Payment payment = orderDTO.getPayment() == null ? null : paymentRepository.findById(orderDTO.getPayment())
-                .orElseThrow(() -> new NotFoundException("payment not found"));
-        order.setPayment(payment);
         final Shipping shipping = orderDTO.getShipping() == null ? null : shippingRepository.findById(orderDTO.getShipping())
                 .orElseThrow(() -> new NotFoundException("shipping not found"));
         order.setShipping(shipping);
         return order;
-    }
-
-    public boolean paymentExists(final UUID id) {
-        return orderRepository.existsByPaymentId(id);
     }
 
     public boolean shippingExists(final UUID shippingID) {
@@ -112,6 +105,12 @@ public class OrderService {
         if (orderOrderItem != null) {
             referencedWarning.setKey("order.orderItem.order.referenced");
             referencedWarning.addParam(orderOrderItem.getOrderItemID());
+            return referencedWarning;
+        }
+        final Payment orderPayment = paymentRepository.findFirstByOrder(order);
+        if (orderPayment != null) {
+            referencedWarning.setKey("order.payment.order.referenced");
+            referencedWarning.addParam(orderPayment.getId());
             return referencedWarning;
         }
         return null;

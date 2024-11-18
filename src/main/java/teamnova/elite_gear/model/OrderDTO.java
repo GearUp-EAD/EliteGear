@@ -23,9 +23,6 @@ public class OrderDTO {
 
     private UUID customer;
 
-    @OrderPaymentUnique
-    private UUID payment;
-
     @OrderShippingUnique
     private UUID shipping;
 
