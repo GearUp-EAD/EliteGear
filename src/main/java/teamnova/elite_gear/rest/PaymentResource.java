@@ -52,6 +52,7 @@ public class PaymentResource {
         String orderId = request.getOrder_id();
         String amount = request.getAmount();
         String currency = request.getCurrency();
+        System.out.println("Received payment request for order: " + orderId + " amount: " + amount + " currency: " + currency);
 
 
         // Generate hash
@@ -67,17 +68,16 @@ public class PaymentResource {
     public void paymentNotification(@ModelAttribute PaymentNotification notification, HttpServletResponse response) throws NoSuchAlgorithmException {
         try {
             // Add logging to see what data is coming in
-            System.out.println("Received notification data: " + notification);
+            System.out.println("Received notification data: " + notification.getPayhere_amount() + notification.getPayhere_currency())  ;
 
             String localMd5Sig = paymentService.generateHash(
-                    notification.getMerchantId() +
+                    MERCHANT_ID +
                             notification.getOrder_id() +
-                            notification.getPayhereAmount() +
-                            notification.getPayhereCurrency() +
+                            notification.getPayhere_amount() +
+                            notification.getPayhere_currency() +
                             notification.getStatus_code() +
                             paymentService.generateHash(MERCHANT_SECRET).toUpperCase()
             ).toUpperCase();
-
 
 
             if (localMd5Sig.equals(notification.getMd5sig()) && "2".equals(notification.getStatus_code())) {

@@ -8,8 +8,8 @@ import lombok.Setter;
 public class PaymentNotification {
     private String merchantId;
     private String order_id;
-    private String payhereAmount;
-    private String payhereCurrency;
+    private String payhere_amount;
+    private String payhere_currency;
     private String status_code;
     private String md5sig;
 
