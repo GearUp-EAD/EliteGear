@@ -1,15 +1,13 @@
 package teamnova.elite_gear.model;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 public class PaymentRequest {
-    private Long amount;
-    private String productName;
+    private String order_id;
+    private String amount;
+    private String currency;
 
-    // Getters and setters
 }
-

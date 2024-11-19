@@ -16,34 +16,34 @@ import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.web.servlet.HandlerMapping;
-import teamnova.elite_gear.service.OrderService;
+import teamnova.elite_gear.service.ShippingService;
 
 
 /**
- * Validate that the shippingID value isn't taken yet.
+ * Validate that the orderID value isn't taken yet.
  */
 @Target({ FIELD, METHOD, ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(
-        validatedBy = OrderShippingUnique.OrderShippingUniqueValidator.class
+        validatedBy = ShippingOrderUnique.ShippingOrderUniqueValidator.class
 )
-public @interface OrderShippingUnique {
+public @interface ShippingOrderUnique {
 
-    String message() default "{Exists.order.shipping}";
+    String message() default "{Exists.shipping.order}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    class OrderShippingUniqueValidator implements ConstraintValidator<OrderShippingUnique, UUID> {
+    class ShippingOrderUniqueValidator implements ConstraintValidator<ShippingOrderUnique, UUID> {
 
-        private final OrderService orderService;
+        private final ShippingService shippingService;
         private final HttpServletRequest request;
 
-        public OrderShippingUniqueValidator(final OrderService orderService,
-                final HttpServletRequest request) {
-            this.orderService = orderService;
+        public ShippingOrderUniqueValidator(final ShippingService shippingService,
+                                            final HttpServletRequest request) {
+            this.shippingService = shippingService;
             this.request = request;
         }
 
@@ -55,12 +55,12 @@ public @interface OrderShippingUnique {
             }
             @SuppressWarnings("unchecked") final Map<String, String> pathVariables =
                     ((Map<String, String>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE));
-            final String currentId = pathVariables.get("orderID");
-            if (currentId != null && value.equals(orderService.get(UUID.fromString(currentId)).getShipping())) {
+            final String currentId = pathVariables.get("shippingID");
+            if (currentId != null && value.equals(shippingService.get(UUID.fromString(currentId)).getOrder())) {
                 // value hasn't changed
                 return true;
             }
-            return !orderService.shippingExists(value);
+            return !shippingService.orderExists(value);
         }
 
     }

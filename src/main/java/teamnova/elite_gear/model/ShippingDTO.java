@@ -21,4 +21,7 @@ public class ShippingDTO {
     @Size(max = 40)
     private String shippingStatus;
 
+    @ShippingOrderUnique
+    private UUID order;
+
 }

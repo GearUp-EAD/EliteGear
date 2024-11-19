@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import teamnova.elite_gear.model.ShippingDTO;
 import teamnova.elite_gear.service.ShippingService;
-import teamnova.elite_gear.util.ReferencedException;
-import teamnova.elite_gear.util.ReferencedWarning;
 
 
 @RestController
@@ -61,10 +59,6 @@ public class ShippingResource {
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteShipping(
             @PathVariable(name = "shippingID") final UUID shippingID) {
-        final ReferencedWarning referencedWarning = shippingService.getReferencedWarning(shippingID);
-        if (referencedWarning != null) {
-            throw new ReferencedException(referencedWarning);
-        }
         shippingService.delete(shippingID);
         return ResponseEntity.noContent().build();
     }

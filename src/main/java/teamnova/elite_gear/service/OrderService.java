@@ -24,20 +24,20 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
-    private final ShippingRepository shippingRepository;
     private final OrderItemRepository orderItemRepository;
     private final PaymentRepository paymentRepository;
+    private final ShippingRepository shippingRepository;
 
     public OrderService(final OrderRepository orderRepository,
                         final CustomerRepository customerRepository,
-                        final ShippingRepository shippingRepository,
                         final OrderItemRepository orderItemRepository,
-                        final PaymentRepository paymentRepository) {
+                        final PaymentRepository paymentRepository,
+                        final ShippingRepository shippingRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
-        this.shippingRepository = shippingRepository;
         this.orderItemRepository = orderItemRepository;
         this.paymentRepository = paymentRepository;
+        this.shippingRepository = shippingRepository;
     }
 
     public List<OrderDTO> findAll() {
@@ -76,7 +76,6 @@ public class OrderService {
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
         orderDTO.setCustomer(order.getCustomer() == null ? null : order.getCustomer().getCustomerID());
-        orderDTO.setShipping(order.getShipping() == null ? null : order.getShipping().getShippingID());
         return orderDTO;
     }
 
@@ -87,14 +86,7 @@ public class OrderService {
         final Customer customer = orderDTO.getCustomer() == null ? null : customerRepository.findById(orderDTO.getCustomer())
                 .orElseThrow(() -> new NotFoundException("customer not found"));
         order.setCustomer(customer);
-        final Shipping shipping = orderDTO.getShipping() == null ? null : shippingRepository.findById(orderDTO.getShipping())
-                .orElseThrow(() -> new NotFoundException("shipping not found"));
-        order.setShipping(shipping);
         return order;
-    }
-
-    public boolean shippingExists(final UUID shippingID) {
-        return orderRepository.existsByShippingShippingID(shippingID);
     }
 
     public ReferencedWarning getReferencedWarning(final UUID orderID) {
@@ -111,6 +103,12 @@ public class OrderService {
         if (orderPayment != null) {
             referencedWarning.setKey("order.payment.order.referenced");
             referencedWarning.addParam(orderPayment.getId());
+            return referencedWarning;
+        }
+        final Shipping orderShipping = shippingRepository.findFirstByOrder(order);
+        if (orderShipping != null) {
+            referencedWarning.setKey("order.shipping.order.referenced");
+            referencedWarning.addParam(orderShipping.getShippingID());
             return referencedWarning;
         }
         return null;

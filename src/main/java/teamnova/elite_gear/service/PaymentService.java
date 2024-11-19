@@ -1,5 +1,7 @@
 package teamnova.elite_gear.service;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
@@ -75,6 +77,17 @@ public class PaymentService {
 
     public boolean orderExists(final UUID orderID) {
         return paymentRepository.existsByOrderOrderID(orderID);
+    }
+
+    public String generateHash(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(input.getBytes());
+        byte[] digest = md.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
 }

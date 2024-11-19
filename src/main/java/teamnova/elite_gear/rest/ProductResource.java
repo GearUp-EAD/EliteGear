@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,10 +46,13 @@ public class ProductResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createProduct(@RequestBody @Valid final ProductDTO productDTO) {
-        final UUID createdProductID = productService.create(productDTO);
-        return new ResponseEntity<>(createdProductID, HttpStatus.CREATED);
+    public ResponseEntity<List<UUID>> createProducts(@RequestBody @Valid final List<ProductDTO> productDTOs) {
+        List<UUID> createdProductIDs = productDTOs.stream()
+                .map(productService::create)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(createdProductIDs, HttpStatus.CREATED);
     }
+
 
     @PutMapping("/{productID}")
     public ResponseEntity<UUID> updateProduct(
