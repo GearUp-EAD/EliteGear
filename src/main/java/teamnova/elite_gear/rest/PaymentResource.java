@@ -64,6 +64,7 @@ public class PaymentResource {
         return new PaymentResponse(MERCHANT_ID, hash);
     }
 
+
     @PostMapping(value = "/notify", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public void paymentNotification(@ModelAttribute PaymentNotification notification, HttpServletResponse response) throws NoSuchAlgorithmException {
         try {

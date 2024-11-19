@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import teamnova.elite_gear.model.AddToCartDTO;
 import teamnova.elite_gear.model.CartDTO;
 import teamnova.elite_gear.service.CartService;
 import teamnova.elite_gear.util.ReferencedException;
@@ -45,6 +46,13 @@ public class CartResource {
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createCart(@RequestBody @Valid final CartDTO cartDTO) {
         final UUID createdCartID = cartService.create(cartDTO);
+        return new ResponseEntity<>(createdCartID, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/addToCart")
+    @ApiResponse(responseCode = "201")
+    public ResponseEntity<UUID> addToCart(@RequestBody @Valid final AddToCartDTO addToCartDTO) {
+        final UUID createdCartID = cartService.addToCart(addToCartDTO);
         return new ResponseEntity<>(createdCartID, HttpStatus.CREATED);
     }
 
