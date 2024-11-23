@@ -41,11 +41,14 @@ public class OrderItemService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public UUID create(final OrderItemDTO orderItemDTO) {
+    public UUID create(final OrderItemDTO orderItemDTO, UUID orderID) {
+        orderItemDTO.setOrder(orderID);
+//        orderItemDTO.setPrice(productRepository.findById(orderItemDTO.getProduct()).get().getPrice());
         final OrderItem orderItem = new OrderItem();
         mapToEntity(orderItemDTO, orderItem);
         return orderItemRepository.save(orderItem).getOrderItemID();
     }
+
 
     public void update(final UUID orderItemID, final OrderItemDTO orderItemDTO) {
         final OrderItem orderItem = orderItemRepository.findById(orderItemID)
@@ -67,9 +70,9 @@ public class OrderItemService {
         return orderItemDTO;
     }
 
-    private OrderItem mapToEntity(final OrderItemDTO orderItemDTO, final OrderItem orderItem) {
+    private OrderItem mapToEntity(final OrderItemDTO orderItemDTO, final OrderItem orderItem ) {
         orderItem.setQuantity(orderItemDTO.getQuantity());
-        orderItem.setPrice(orderItemDTO.getPrice());
+        orderItem.setPrice(productRepository.findById(orderItemDTO.getProduct()).get().getPrice());
         final Order order = orderItemDTO.getOrder() == null ? null : orderRepository.findById(orderItemDTO.getOrder())
                 .orElseThrow(() -> new NotFoundException("order not found"));
         orderItem.setOrder(order);

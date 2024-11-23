@@ -22,8 +22,7 @@ public class ProductDTO {
     private String description;
 
     @NotNull
-    @Size(max = 255)
-    private String price;
+    private Integer price;
 
     @NotNull
     private Integer stockQuantity;

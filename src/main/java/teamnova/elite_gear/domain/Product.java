@@ -33,7 +33,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private String price;
+    private Integer price;
 
     @Column(nullable = false)
     private Integer stockQuantity;

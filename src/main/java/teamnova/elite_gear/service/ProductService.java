@@ -43,6 +43,14 @@ public class ProductService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public List<ProductDTO> findByCategory(final UUID categoryID) {
+        final List<Product> products = productRepository.findByCategoryOrderByName(categoryRepository.findById(categoryID)
+                .orElseThrow(() -> new NotFoundException("category not found")));
+        return products.stream()
+                .map(product -> mapToDTO(product, new ProductDTO()))
+                .toList();
+    }
+
     public UUID create(final ProductDTO productDTO) {
         final Product product = new Product();
         mapToEntity(productDTO, product);

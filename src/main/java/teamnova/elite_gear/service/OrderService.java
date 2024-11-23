@@ -55,8 +55,27 @@ public class OrderService {
 
     public UUID create(final OrderDTO orderDTO) {
         final Order order = new Order();
+        System.out.println(orderDTO.getCustomer());
         mapToEntity(orderDTO, order);
         return orderRepository.save(order).getOrderID();
+    }
+
+    public UUID createOrCheckOrder(final UUID customerID, Integer Sum) {
+//        try {
+//            Order order = orderRepository.findById(customerID)
+//                    .orElseThrow(() -> new NotFoundException("Order not found"));
+//            order.getCustomer().getCustomerID();
+//            return order.getOrderID();
+//        }
+//        catch (NotFoundException e){
+            OrderDTO orderDTO = new OrderDTO();
+            orderDTO.setCustomer(customerID);
+            orderDTO.setOrderDate( java.time.LocalDate.now().toString());
+            orderDTO.setStatus("pending");
+            orderDTO.setTotalAmount(Sum);
+            return create(orderDTO);
+
+//        }
     }
 
     public void update(final UUID orderID, final OrderDTO orderDTO) {

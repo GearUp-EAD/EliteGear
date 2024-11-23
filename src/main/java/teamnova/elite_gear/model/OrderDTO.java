@@ -15,8 +15,7 @@ public class OrderDTO {
     @Size(max = 255)
     private String orderDate;
 
-    @Size(max = 255)
-    private String totalAmount;
+    private Integer totalAmount;
 
     @Size(max = 255)
     private String status;

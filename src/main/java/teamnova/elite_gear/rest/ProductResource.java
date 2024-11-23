@@ -44,6 +44,12 @@ public class ProductResource {
         return ResponseEntity.ok(productService.get(productID));
     }
 
+    @GetMapping("/category/{categoryID}")
+    public ResponseEntity<List<ProductDTO>> getProductsByCategory(
+            @PathVariable(name = "categoryID") final UUID categoryID) {
+        return ResponseEntity.ok(productService.findByCategory(categoryID));
+    }
+
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<List<UUID>> createProducts(@RequestBody @Valid final List<ProductDTO> productDTOs) {

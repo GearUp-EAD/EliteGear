@@ -3,7 +3,6 @@ package teamnova.elite_gear.rest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
@@ -11,11 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamnova.elite_gear.model.PaymentDTO;
-import teamnova.elite_gear.model.PaymentNotification;
-import teamnova.elite_gear.model.PaymentRequest;
-import teamnova.elite_gear.model.PaymentResponse;
+import teamnova.elite_gear.model.*;
 import teamnova.elite_gear.service.PaymentService;
+import teamnova.elite_gear.service.OrderService;
 
 
 @RestController
@@ -23,12 +20,16 @@ import teamnova.elite_gear.service.PaymentService;
 public class PaymentResource {
 
     private static final String MERCHANT_ID = "1228650";
-    private static final String MERCHANT_SECRET = "MzczNDUzNDA5MDUyNzUwMDM0NjM0MDcwNTU2MTg3MjEzNDUwMA=="; // Replace with your Merchant Secret
+    private static final String MERCHANT_SECRET = "NTI0MDQ4MDY1Njc2MDg3MDUxMTE5MTQwMDI1MTExNjIxNDE2OQ=="; // Replace with your Merchant Secret
 
     private final PaymentService paymentService;
+    private final OrderService orderService;
 
-    public PaymentResource(final PaymentService paymentService) {
+
+    public PaymentResource(final PaymentService paymentService,
+                           final OrderService orderService) {
         this.paymentService = paymentService;
+        this.orderService = orderService;
     }
 
     @GetMapping
@@ -47,7 +48,10 @@ public class PaymentResource {
         final UUID createdId = paymentService.create(paymentDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
+
+
     @PostMapping("/start")
+    @ApiResponse(responseCode = "200")
     public PaymentResponse startPayment(@RequestBody PaymentRequest request) throws NoSuchAlgorithmException {
         String orderId = request.getOrder_id();
         String amount = request.getAmount();
@@ -65,7 +69,9 @@ public class PaymentResource {
     }
 
 
+
     @PostMapping(value = "/notify", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ApiResponse(responseCode = "200")
     public void paymentNotification(@ModelAttribute PaymentNotification notification, HttpServletResponse response) throws NoSuchAlgorithmException {
         try {
             // Add logging to see what data is coming in
@@ -83,6 +89,12 @@ public class PaymentResource {
 
             if (localMd5Sig.equals(notification.getMd5sig()) && "2".equals(notification.getStatus_code())) {
                 System.out.println("Payment successful for order: " + notification.getOrder_id());
+                PaymentDTO paymentDTO = new PaymentDTO();
+                paymentDTO.setPaymentAmount(Integer.parseInt(notification.getPayhere_amount()));
+                paymentDTO.setPaymentDate(java.time.LocalDate.now());
+                paymentDTO.setPaymentMethod("PayHere");
+                paymentDTO.setOrder(UUID.fromString(notification.getOrder_id()));
+
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {
                 System.out.println("Payment verification failed for order: " + notification.getOrder_id());

@@ -17,18 +17,24 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import teamnova.elite_gear.model.CustomerOrderItemsDTO;
 import teamnova.elite_gear.model.OrderItemDTO;
 import teamnova.elite_gear.service.OrderItemService;
-
-
+import teamnova.elite_gear.service.OrderService;
+import teamnova.elite_gear.service.ProductService;
 @RestController
 @RequestMapping(value = "/api/orderItems", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrderItemResource {
 
     private final OrderItemService orderItemService;
-
-    public OrderItemResource(final OrderItemService orderItemService) {
+    private final OrderService orderService;
+    private final ProductService productService;
+    public OrderItemResource(final OrderItemService orderItemService,
+                             final OrderService orderService,
+                             final ProductService productService) {
         this.orderItemService = orderItemService;
+        this.orderService = orderService;
+        this.productService = productService;
     }
 
     @GetMapping
@@ -42,15 +48,39 @@ public class OrderItemResource {
         return ResponseEntity.ok(orderItemService.get(orderItemID));
     }
 
-    @PostMapping
+//    @PostMapping
+//    @ApiResponse(responseCode = "201")
+//    public ResponseEntity<List<UUID>> createOrderItems(
+//        @RequestBody @Valid final List<OrderItemDTO> orderItemDTOs) {
+//    List<UUID> createdOrderItemIDs = orderItemDTOs.stream()
+//            .map(orderItemService::create)
+//            .collect(Collectors.toList());
+//    return new ResponseEntity<>(createdOrderItemIDs, HttpStatus.CREATED);
+//}
+    @PostMapping("/checkout")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<List<UUID>> createOrderItems(
-        @RequestBody @Valid final List<OrderItemDTO> orderItemDTOs) {
-    List<UUID> createdOrderItemIDs = orderItemDTOs.stream()
-            .map(orderItemService::create)
-            .collect(Collectors.toList());
-    return new ResponseEntity<>(createdOrderItemIDs, HttpStatus.CREATED);
-}
+            @RequestBody @Valid final CustomerOrderItemsDTO customerOrderItems) {
+        UUID customerID = customerOrderItems.getCustomerID();
+        Integer Sum = 0;
+        for (OrderItemDTO orderItem : customerOrderItems.getOrderItems()) {
+            Integer price = productService.get(orderItem.getProduct()).getPrice();
+            System.out.println(price);
+            Sum += productService.get(orderItem.getProduct()).getPrice() * orderItem.getQuantity();
+        }
+        System.out.println(Sum);
+
+        UUID orderID = orderService.createOrCheckOrder(customerID,Sum);
+
+
+
+
+        List<UUID> createdOrderItemIDs = customerOrderItems.getOrderItems().stream()
+                .map(orderItem -> orderItemService.create(orderItem,orderID))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>( createdOrderItemIDs,HttpStatus.CREATED);
+    }
 
     @PutMapping("/{orderItemID}")
     public ResponseEntity<UUID> updateOrderItem(

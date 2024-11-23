@@ -3,6 +3,7 @@ package teamnova.elite_gear.service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class PaymentService {
                           final OrderRepository orderRepository) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
+
     }
 
     public List<PaymentDTO> findAll() {
@@ -56,6 +58,10 @@ public class PaymentService {
         paymentRepository.deleteById(id);
     }
 
+
+
+
+
     private PaymentDTO mapToDTO(final Payment payment, final PaymentDTO paymentDTO) {
         paymentDTO.setId(payment.getId());
         paymentDTO.setPaymentDate(payment.getPaymentDate());
@@ -69,6 +75,7 @@ public class PaymentService {
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setPaymentAmount(paymentDTO.getPaymentAmount());
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+
         final Order order = paymentDTO.getOrder() == null ? null : orderRepository.findById(paymentDTO.getOrder())
                 .orElseThrow(() -> new NotFoundException("order not found"));
         payment.setOrder(order);

@@ -30,7 +30,7 @@ public class Order {
     private String orderDate;
 
     @Column
-    private String totalAmount;
+    private Integer totalAmount;
 
     @Column
     private String status;
