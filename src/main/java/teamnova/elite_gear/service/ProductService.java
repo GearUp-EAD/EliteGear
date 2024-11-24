@@ -85,6 +85,15 @@ public class ProductService {
         return mapToDTO(product);
     }
 
+    @Transactional
+    public void deleteProduct(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + productId));
+
+        productRepository.delete(product);
+    }
+
+
 
 
     public List<ProductVariantDTO> getProductAvailability(UUID productId) {
@@ -92,6 +101,19 @@ public class ProductService {
                 .map(this::mapVariantToDTO)
                 .collect(Collectors.toList());
     }
+
+    public List<ProductVariantDTO> updateVariats (List<ProductVariantDTO> variants) {
+        for (ProductVariantDTO variant : variants) {
+            ProductVariant productVariant = variantRepository.findById(variant.getVariantId())
+                    .orElseThrow(() -> new NotFoundException("Variant not found"));
+            productVariant.setStockQuantity(variant.getStockQuantity());
+            productVariant.setPriceAdjustment(variant.getPriceAdjustment());
+            variantRepository.save(productVariant);
+
+    }
+        return variants;
+    }
+
     public ProductDTO mapToDTO(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setProductId(product.getProductID());

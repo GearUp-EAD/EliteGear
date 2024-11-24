@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import teamnova.elite_gear.util.OrderStatus;
 
 
 @Getter
@@ -18,7 +19,7 @@ public class OrderDTO {
     private Integer totalAmount;
 
     @Size(max = 255)
-    private String status;
+    private OrderStatus status;
 
     private UUID customer;
 

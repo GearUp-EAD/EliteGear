@@ -16,6 +16,7 @@ import teamnova.elite_gear.repos.OrderRepository;
 import teamnova.elite_gear.repos.PaymentRepository;
 import teamnova.elite_gear.repos.ShippingRepository;
 import teamnova.elite_gear.util.NotFoundException;
+import teamnova.elite_gear.util.OrderStatus;
 import teamnova.elite_gear.util.ReferencedWarning;
 
 
@@ -71,7 +72,7 @@ public class OrderService {
             OrderDTO orderDTO = new OrderDTO();
             orderDTO.setCustomer(customerID);
             orderDTO.setOrderDate( java.time.LocalDate.now().toString());
-            orderDTO.setStatus("pending");
+            orderDTO.setStatus(OrderStatus.PENDING);
             orderDTO.setTotalAmount(Sum);
             return create(orderDTO);
 

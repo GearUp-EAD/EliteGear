@@ -36,17 +36,29 @@ public class ProductResource {
     public ProductDTO getProduct(@PathVariable UUID productId) {
         return productService.getProduct(productId);
     }
-
-    @PostMapping
-    @ApiResponse(responseCode = "201")
-    public ProductDTO createProduct(@RequestBody CreateProductRequest request) {
-        System.out.println("Api called");
-        return productService.createProduct(request);
-    }
-
     @GetMapping("/{productId}/availability")
     public List<ProductVariantDTO> getProductAvailability(@PathVariable UUID productId) {
         return productService.getProductAvailability(productId);
     }
+
+   @PutMapping("/{variantId}")
+    public List <ProductVariantDTO> updateProductVariant(@PathVariable UUID variantId, @RequestBody List <ProductVariantDTO> variantDTO) {
+        return productService.updateVariats( variantDTO);
+    }
+
+    @PostMapping
+    @ApiResponse(responseCode = "201")
+    public ProductDTO createProduct(@RequestBody CreateProductRequest request) {
+        return productService.createProduct(request);
+    }
+
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
 
