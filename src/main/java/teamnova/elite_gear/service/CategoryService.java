@@ -26,7 +26,7 @@ public class CategoryService {
     }
 
     public List<CategoryDTO> findAll() {
-        final List<Category> categories = categoryRepository.findAll(Sort.by("orderItemID"));
+        final List<Category> categories = categoryRepository.findAll(Sort.by("categoryName"));
         return categories.stream()
                 .map(category -> mapToDTO(category, new CategoryDTO()))
                 .toList();
@@ -41,7 +41,7 @@ public class CategoryService {
     public UUID create(final CategoryDTO categoryDTO) {
         final Category category = new Category();
         mapToEntity(categoryDTO, category);
-        return categoryRepository.save(category).getOrderItemID();
+        return categoryRepository.save(category).getCategoryId();
     }
 
     public void update(final UUID orderItemID, final CategoryDTO categoryDTO) {
@@ -56,7 +56,7 @@ public class CategoryService {
     }
 
     private CategoryDTO mapToDTO(final Category category, final CategoryDTO categoryDTO) {
-        categoryDTO.setOrderItemID(category.getOrderItemID());
+        categoryDTO.setOrderItemID(category.getCategoryId());
         categoryDTO.setCategoryName(category.getCategoryName());
         return categoryDTO;
     }

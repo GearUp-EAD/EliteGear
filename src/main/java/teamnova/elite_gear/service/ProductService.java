@@ -1,105 +1,119 @@
 package teamnova.elite_gear.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.stripe.model.InvoiceItem;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import teamnova.elite_gear.domain.Category;
-import teamnova.elite_gear.domain.OrderItem;
-import teamnova.elite_gear.domain.Product;
+import teamnova.elite_gear.domain.*;
 import teamnova.elite_gear.model.ProductDTO;
-import teamnova.elite_gear.repos.CategoryRepository;
-import teamnova.elite_gear.repos.OrderItemRepository;
-import teamnova.elite_gear.repos.ProductRepository;
+import teamnova.elite_gear.model.ProductVariantDTO;
+import teamnova.elite_gear.repos.*;
 import teamnova.elite_gear.util.NotFoundException;
 import teamnova.elite_gear.util.ReferencedWarning;
 
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
+    private final ProductVariantRepository variantRepository;
     private final CategoryRepository categoryRepository;
-    private final OrderItemRepository orderItemRepository;
+    private final SizeRepository sizeRepository;
 
-    public ProductService(final ProductRepository productRepository,
-            final CategoryRepository categoryRepository,
-            final OrderItemRepository orderItemRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.orderItemRepository = orderItemRepository;
-    }
+    public ProductDTO createProduct(CreateProductRequest request) {
+        // 1. Create the product
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setBasePrice(request.getBasePrice());
 
-    public List<ProductDTO> findAll() {
-        final List<Product> products = productRepository.findAll(Sort.by("productID"));
-        return products.stream()
-                .map(product -> mapToDTO(product, new ProductDTO()))
-                .toList();
-    }
-
-    public ProductDTO get(final UUID productID) {
-        return productRepository.findById(productID)
-                .map(product -> mapToDTO(product, new ProductDTO()))
-                .orElseThrow(NotFoundException::new);
-    }
-
-    public List<ProductDTO> findByCategory(final UUID categoryID) {
-        final List<Product> products = productRepository.findByCategoryOrderByName(categoryRepository.findById(categoryID)
-                .orElseThrow(() -> new NotFoundException("category not found")));
-        return products.stream()
-                .map(product -> mapToDTO(product, new ProductDTO()))
-                .toList();
-    }
-
-    public UUID create(final ProductDTO productDTO) {
-        final Product product = new Product();
-        mapToEntity(productDTO, product);
-        return productRepository.save(product).getProductID();
-    }
-
-    public void update(final UUID productID, final ProductDTO productDTO) {
-        final Product product = productRepository.findById(productID)
-                .orElseThrow(NotFoundException::new);
-        mapToEntity(productDTO, product);
-        productRepository.save(product);
-    }
-
-    public void delete(final UUID productID) {
-        productRepository.deleteById(productID);
-    }
-
-    private ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
-        productDTO.setProductID(product.getProductID());
-        productDTO.setName(product.getName());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setPrice(product.getPrice());
-        productDTO.setStockQuantity(product.getStockQuantity());
-        productDTO.setCategory(product.getCategory() == null ? null : product.getCategory().getOrderItemID());
-        return productDTO;
-    }
-
-    private Product mapToEntity(final ProductDTO productDTO, final Product product) {
-        product.setName(productDTO.getName());
-        product.setDescription(productDTO.getDescription());
-        product.setPrice(productDTO.getPrice());
-        product.setStockQuantity(productDTO.getStockQuantity());
-        final Category category = productDTO.getCategory() == null ? null : categoryRepository.findById(productDTO.getCategory())
-                .orElseThrow(() -> new NotFoundException("category not found"));
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
         product.setCategory(category);
-        return product;
+
+        // 2. Save the product first
+        product = productRepository.save(product);
+
+        // 3. Create and save variants
+        Set<ProductVariant> variants = new HashSet<>();
+        for (CreateVariantRequest variantRequest : request.getVariants()) {
+            ProductVariant variant = new ProductVariant();
+            variant.setProduct(product);  // Set the product reference
+
+            Size size = sizeRepository.findById(variantRequest.getSizeId())
+                    .orElseThrow(() -> new NotFoundException("Size not found"));
+            variant.setSize(size);
+
+            variant.setStockQuantity(variantRequest.getStockQuantity());
+            variant.setPriceAdjustment(variantRequest.getPriceAdjustment());
+
+            variants.add(variant);  // Add to the set
+            variantRepository.save(variant);
+        }
+
+        product.setVariants(variants);  // Set the variants in the product
+
+        // 4. Return the created product
+        return mapToDTO(productRepository.findById(product.getProductID()).get());
     }
 
-    public ReferencedWarning getReferencedWarning(final UUID productID) {
-        final ReferencedWarning referencedWarning = new ReferencedWarning();
-        final Product product = productRepository.findById(productID)
-                .orElseThrow(NotFoundException::new);
-        final OrderItem productOrderItem = orderItemRepository.findFirstByProduct(product);
-        if (productOrderItem != null) {
-            referencedWarning.setKey("product.orderItem.product.referenced");
-            referencedWarning.addParam(productOrderItem.getOrderItemID());
-            return referencedWarning;
+    public List<ProductDTO> findProducts(UUID categoryId, String sizeType) {
+        List<Product> products;
+        if (categoryId != null) {
+            products = productRepository.findByCategoryCategoryId(categoryId);
+        } else if (sizeType != null) {
+            products = productRepository.findByVariantsSizeSizeTypeName(sizeType);
+        } else {
+            products = productRepository.findAll();
         }
-        return null;
+        return products.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
+
+    public ProductDTO getProduct(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        return mapToDTO(product);
+    }
+
+
+
+    public List<ProductVariantDTO> getProductAvailability(UUID productId) {
+        return variantRepository.findByProductProductID(productId).stream()
+                .map(this::mapVariantToDTO)
+                .collect(Collectors.toList());
+    }
+    public ProductDTO mapToDTO(Product product) {
+        ProductDTO dto = new ProductDTO();
+        dto.setProductId(product.getProductID());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setBasePrice(product.getBasePrice());
+        dto.setCategoryName(product.getCategory().getCategoryName());
+        dto.setVariants(product.getVariants().stream()
+                .map(this::mapVariantToDTO)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    public ProductVariantDTO mapVariantToDTO(ProductVariant variant) {
+        ProductVariantDTO dto = new ProductVariantDTO();
+        dto.setVariantId(variant.getVariantId());
+        dto.setSize(variant.getSize().getValue());
+        dto.setStockQuantity(variant.getStockQuantity());
+        dto.setPriceAdjustment(variant.getPriceAdjustment());
+        return dto;
+    }
+
+
 
 }

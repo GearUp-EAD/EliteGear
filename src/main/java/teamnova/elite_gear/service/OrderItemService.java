@@ -72,7 +72,7 @@ public class OrderItemService {
 
     private OrderItem mapToEntity(final OrderItemDTO orderItemDTO, final OrderItem orderItem ) {
         orderItem.setQuantity(orderItemDTO.getQuantity());
-        orderItem.setPrice(productRepository.findById(orderItemDTO.getProduct()).get().getPrice());
+        orderItem.setPrice(productRepository.findById(orderItemDTO.getProduct()).get().getBasePrice());
         final Order order = orderItemDTO.getOrder() == null ? null : orderRepository.findById(orderItemDTO.getOrder())
                 .orElseThrow(() -> new NotFoundException("order not found"));
         orderItem.setOrder(order);

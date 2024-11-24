@@ -64,9 +64,9 @@ public class OrderItemResource {
         UUID customerID = customerOrderItems.getCustomerID();
         Integer Sum = 0;
         for (OrderItemDTO orderItem : customerOrderItems.getOrderItems()) {
-            Integer price = productService.get(orderItem.getProduct()).getPrice();
+            Integer price = productService.getProduct(orderItem.getProduct()).getBasePrice();
             System.out.println(price);
-            Sum += productService.get(orderItem.getProduct()).getPrice() * orderItem.getQuantity();
+            Sum += productService.getProduct(orderItem.getProduct()).getBasePrice() * orderItem.getQuantity();
         }
         System.out.println(Sum);
 

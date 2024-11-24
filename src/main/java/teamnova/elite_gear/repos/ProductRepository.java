@@ -12,7 +12,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     Product findFirstByCategory(Category category);
 
-    @Query
-    List<Product> findByCategoryOrderByName(Category category);
+    List<Product> findByCategoryCategoryId(UUID categoryId);
+
+    List<Product> findByVariantsSizeSizeTypeName(String sizeTypeName);
+
+
+
 
 }

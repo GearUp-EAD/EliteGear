@@ -21,7 +21,7 @@ public class Category {
     @Column(nullable = false, updatable = false)
     @GeneratedValue
     @UuidGenerator
-    private UUID orderItemID;
+    private UUID categoryId;
 
     @Column(nullable = false, length = 25)
     private String categoryName;
