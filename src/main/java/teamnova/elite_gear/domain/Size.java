@@ -20,8 +20,7 @@ public class Size {
     private UUID sizeId;
 
     @Column(nullable = false)
-    private String value; // The actual size value (e.g., "L", "42", "9.5")
-
+    private String value;
     @ManyToOne
     @JoinColumn(name = "size_type_id", nullable = false)
     private SizeType sizeType;

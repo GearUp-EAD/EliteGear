@@ -7,14 +7,8 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import teamnova.elite_gear.model.CreateOrderDTO;
 import teamnova.elite_gear.model.OrderDTO;
 import teamnova.elite_gear.service.OrderService;
 import teamnova.elite_gear.util.ReferencedException;
@@ -33,37 +27,32 @@ public class OrderResource {
 
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
-        return ResponseEntity.ok(orderService.findAll());
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    @GetMapping("/{orderID}")
-    public ResponseEntity<OrderDTO> getOrder(@PathVariable(name = "orderID") final UUID orderID) {
-        return ResponseEntity.ok(orderService.get(orderID));
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderDTO> getOrder(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
+
 
     @PostMapping
-    @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createOrder(@RequestBody @Valid final OrderDTO orderDTO) {
-        final UUID createdOrderID = orderService.create(orderDTO);
-        return new ResponseEntity<>(createdOrderID, HttpStatus.CREATED);
+    public ResponseEntity<List<OrderDTO>> createOrders(@RequestBody List<CreateOrderDTO> createOrderDTOs) {
+        List<OrderDTO> orders = orderService.createOrders(createOrderDTOs);
+        return ResponseEntity.ok(orders);
     }
 
-    @PutMapping("/{orderID}")
-    public ResponseEntity<UUID> updateOrder(@PathVariable(name = "orderID") final UUID orderID,
-                                            @RequestBody @Valid final OrderDTO orderDTO) {
-        orderService.update(orderID, orderDTO);
-        return ResponseEntity.ok(orderID);
+
+    @PatchMapping("/{orderId}/status")
+    public ResponseEntity<OrderDTO> updateOrderStatus(
+            @PathVariable UUID orderId,
+            @RequestParam String status) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
     }
 
-    @DeleteMapping("/{orderID}")
-    @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteOrder(@PathVariable(name = "orderID") final UUID orderID) {
-        final ReferencedWarning referencedWarning = orderService.getReferencedWarning(orderID);
-        if (referencedWarning != null) {
-            throw new ReferencedException(referencedWarning);
-        }
-        orderService.delete(orderID);
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderId) {
+        orderService.deleteOrder(orderId);
         return ResponseEntity.noContent().build();
     }
-
 }

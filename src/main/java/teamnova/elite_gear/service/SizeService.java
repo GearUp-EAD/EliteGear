@@ -1,10 +1,14 @@
 package teamnova.elite_gear.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import teamnova.elite_gear.domain.Customer;
 import teamnova.elite_gear.domain.Size;
 import teamnova.elite_gear.domain.SizeType;
+import teamnova.elite_gear.model.CustomerDTO;
 import teamnova.elite_gear.model.SizeDTO;
 import teamnova.elite_gear.model.SizeTypeDTO;
 import teamnova.elite_gear.repos.SizeRepository;
@@ -21,12 +25,22 @@ public class SizeService {
     private final SizeRepository sizeRepository;
     private final SizeTypeRepository sizeTypeRepository;
 
-    public SizeDTO createSize(SizeDTO sizeDTO) {
-        Size size = new Size();
-        updateSizeFromDTO(size, sizeDTO);
-        Size savedSize = sizeRepository.save(size);
-        return convertToDTO(savedSize);
+    public List<SizeDTO> createSizes(List<SizeDTO> sizeDTOs) {
+        return sizeDTOs.stream().map(sizeDTO -> {
+            Size size = new Size();
+            size.setValue(sizeDTO.getValue());
+
+            SizeType sizeType = sizeTypeRepository.findById(sizeDTO.getSizeTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("Size type not found with ID: " + sizeDTO.getSizeTypeId()));
+            size.setSizeType(sizeType);
+
+            Size savedSize = sizeRepository.save(size);
+
+            // Convert Entity to DTO
+            return convertToDTO(savedSize);
+        }).collect(Collectors.toList());
     }
+
 
     public SizeTypeDTO createSizeType(SizeTypeDTO sizeTypeDTO) {
         SizeType sizeType = new SizeType();
@@ -40,6 +54,13 @@ public class SizeService {
         Size size = sizeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Size not found"));
         return convertToDTO(size);
+    }
+
+    public List<SizeDTO> getAllSizes() {
+       final List<Size> sizes = sizeRepository.findAll(Sort.by("sizeId"));
+        return sizes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     public List<SizeTypeDTO> getSizeTypes() {

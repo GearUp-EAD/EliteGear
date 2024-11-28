@@ -1,9 +1,6 @@
 package teamnova.elite_gear.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.stripe.model.InvoiceItem;
@@ -28,42 +25,54 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final SizeRepository sizeRepository;
 
-    public ProductDTO createProduct(CreateProductRequest request) {
-        // 1. Create the product
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setBasePrice(request.getBasePrice());
+    public List<ProductDTO> createProducts(List<CreateProductRequest> requests) {
+        List<ProductDTO> createdProducts = new ArrayList<>();
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new NotFoundException("Category not found"));
-        product.setCategory(category);
+        for (CreateProductRequest request : requests) {
+            // 1. Create the product
+            Product product = new Product();
+            product.setName(request.getName());
+            product.setDescription(request.getDescription());
+            product.setBasePrice(request.getBasePrice());
 
-        // 2. Save the product first
-        product = productRepository.save(product);
+            // 2. Set category
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
+            product.setCategory(category);
 
-        // 3. Create and save variants
-        Set<ProductVariant> variants = new HashSet<>();
-        for (CreateVariantRequest variantRequest : request.getVariants()) {
-            ProductVariant variant = new ProductVariant();
-            variant.setProduct(product);  // Set the product reference
+            // 3. Save the product
+            product = productRepository.save(product);
 
-            Size size = sizeRepository.findById(variantRequest.getSizeId())
-                    .orElseThrow(() -> new NotFoundException("Size not found"));
-            variant.setSize(size);
+            // 4. Create and save variants
+            Set<ProductVariant> variants = new HashSet<>();
+            for (CreateVariantRequest variantRequest : request.getVariants()) {
+                ProductVariant variant = new ProductVariant();
+                variant.setProduct(product);  // Set the product reference
 
-            variant.setStockQuantity(variantRequest.getStockQuantity());
-            variant.setPriceAdjustment(variantRequest.getPriceAdjustment());
+                // Set size
+                Size size = sizeRepository.findById(variantRequest.getSizeId())
+                        .orElseThrow(() -> new NotFoundException("Size not found"));
+                variant.setSize(size);
 
-            variants.add(variant);  // Add to the set
-            variantRepository.save(variant);
+                // Set variant-specific attributes
+                variant.setStockQuantity(variantRequest.getStockQuantity());
+                variant.setPriceAdjustment(variantRequest.getPriceAdjustment());
+
+                // Save variant
+                variant = variantRepository.save(variant);
+                variants.add(variant);
+            }
+
+            // 5. Update the product with variants and save again
+            product.setVariants(variants);
+
+            // 6. Convert to DTO and add to the response list
+            createdProducts.add(mapToDTO(product));
         }
 
-        product.setVariants(variants);  // Set the variants in the product
-
-        // 4. Return the created product
-        return mapToDTO(productRepository.findById(product.getProductID()).get());
+        return createdProducts;
     }
+
 
     public List<ProductDTO> findProducts(UUID categoryId, String sizeType) {
         List<Product> products;

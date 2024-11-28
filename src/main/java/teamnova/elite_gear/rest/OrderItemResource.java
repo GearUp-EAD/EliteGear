@@ -57,30 +57,30 @@ public class OrderItemResource {
 //            .collect(Collectors.toList());
 //    return new ResponseEntity<>(createdOrderItemIDs, HttpStatus.CREATED);
 //}
-    @PostMapping("/checkout")
-    @ApiResponse(responseCode = "201")
-    public ResponseEntity<List<UUID>> createOrderItems(
-            @RequestBody @Valid final CustomerOrderItemsDTO customerOrderItems) {
-        UUID customerID = customerOrderItems.getCustomerID();
-        Integer Sum = 0;
-        for (OrderItemDTO orderItem : customerOrderItems.getOrderItems()) {
-            Integer price = productService.getProduct(orderItem.getProduct()).getBasePrice();
-            System.out.println(price);
-            Sum += productService.getProduct(orderItem.getProduct()).getBasePrice() * orderItem.getQuantity();
-        }
-        System.out.println(Sum);
-
-        UUID orderID = orderService.createOrCheckOrder(customerID,Sum);
-
-
-
-
-        List<UUID> createdOrderItemIDs = customerOrderItems.getOrderItems().stream()
-                .map(orderItem -> orderItemService.create(orderItem,orderID))
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>( createdOrderItemIDs,HttpStatus.CREATED);
-    }
+//    @PostMapping("/checkout")
+//    @ApiResponse(responseCode = "201")
+//    public ResponseEntity<List<UUID>> createOrderItems(
+//            @RequestBody @Valid final CustomerOrderItemsDTO customerOrderItems) {
+//        UUID customerID = customerOrderItems.getCustomerID();
+//        Integer Sum = 0;
+//        for (OrderItemDTO orderItem : customerOrderItems.getOrderItems()) {
+//            Integer price = productService.getProduct(orderService;
+//            System.out.println(price);
+//            Sum += productService.getProduct(orderItem.getProduct()).getBasePrice() * orderItem.getQuantity();
+//        }
+//        System.out.println(Sum);
+//
+//        UUID orderID = orderService.createOrCheckOrder(customerID,Sum);
+//
+//
+//
+//
+//        List<UUID> createdOrderItemIDs = customerOrderItems.getOrderItems().stream()
+//                .map(orderItem -> orderItemService.create(orderItem,orderID))
+//                .collect(Collectors.toList());
+//
+//        return new ResponseEntity<>( createdOrderItemIDs,HttpStatus.CREATED);
+//    }
 
     @PutMapping("/{orderItemID}")
     public ResponseEntity<UUID> updateOrderItem(

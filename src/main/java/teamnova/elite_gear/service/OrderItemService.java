@@ -42,7 +42,7 @@ public class OrderItemService {
     }
 
     public UUID create(final OrderItemDTO orderItemDTO, UUID orderID) {
-        orderItemDTO.setOrder(orderID);
+        orderItemDTO.setOrderItemID(orderID);
 //        orderItemDTO.setPrice(productRepository.findById(orderItemDTO.getProduct()).get().getPrice());
         final OrderItem orderItem = new OrderItem();
         mapToEntity(orderItemDTO, orderItem);
@@ -64,21 +64,21 @@ public class OrderItemService {
     private OrderItemDTO mapToDTO(final OrderItem orderItem, final OrderItemDTO orderItemDTO) {
         orderItemDTO.setOrderItemID(orderItem.getOrderItemID());
         orderItemDTO.setQuantity(orderItem.getQuantity());
-        orderItemDTO.setPrice(orderItem.getPrice());
-        orderItemDTO.setOrder(orderItem.getOrder() == null ? null : orderItem.getOrder().getOrderID());
-        orderItemDTO.setProduct(orderItem.getProduct() == null ? null : orderItem.getProduct().getProductID());
+        orderItemDTO.setUnitPrice(orderItem.getUnitPrice());
+        orderItemDTO.setOrderItemID(orderItem.getOrder() == null ? null : orderItem.getOrder().getOrderID());
+        orderItemDTO.setProductVariantId(orderItem.getProductVariant() == null ? null : orderItem.getProductVariant().getVariantId());
         return orderItemDTO;
     }
 
     private OrderItem mapToEntity(final OrderItemDTO orderItemDTO, final OrderItem orderItem ) {
         orderItem.setQuantity(orderItemDTO.getQuantity());
-        orderItem.setPrice(productRepository.findById(orderItemDTO.getProduct()).get().getBasePrice());
-        final Order order = orderItemDTO.getOrder() == null ? null : orderRepository.findById(orderItemDTO.getOrder())
+        orderItem.setUnitPrice(productRepository.findById(orderItemDTO.getOrderItemID()).get().getBasePrice());
+        final Order order = orderItemDTO.getOrderItemID() == null ? null : orderRepository.findById(orderItemDTO.getOrderItemID())
                 .orElseThrow(() -> new NotFoundException("order not found"));
         orderItem.setOrder(order);
-        final Product product = orderItemDTO.getProduct() == null ? null : productRepository.findById(orderItemDTO.getProduct())
+        final Product product = orderItemDTO.getProductVariantId() == null ? null : productRepository.findById(orderItemDTO.getProductVariantId())
                 .orElseThrow(() -> new NotFoundException("product not found"));
-        orderItem.setProduct(product);
+//        orderItem.setProduct(product);
         return orderItem;
     }
 

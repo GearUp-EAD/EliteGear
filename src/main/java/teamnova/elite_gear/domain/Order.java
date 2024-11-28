@@ -1,6 +1,8 @@
 package teamnova.elite_gear.domain;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -15,17 +17,16 @@ import teamnova.elite_gear.util.OrderStatus;
 @Getter
 @Setter
 public class Order {
-
     @Id
     @Column(nullable = false, updatable = false)
     @GeneratedValue
     @UuidGenerator
     private UUID orderID;
 
-    @Column
-    private String orderDate;
+    @Column(nullable = false)
+    private LocalDateTime orderDate;
 
-    @Column
+    @Column(nullable = false)
     private Integer totalAmount;
 
     @Column(nullable = false)
@@ -39,4 +40,15 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> orderItems = new HashSet<>();
 
+    // Helper method to add order item
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrder(this);
+    }
+
+    // Helper method to remove order item
+    public void removeOrderItem(OrderItem orderItem) {
+        orderItems.remove(orderItem);
+        orderItem.setOrder(null);
+    }
 }

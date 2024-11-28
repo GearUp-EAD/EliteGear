@@ -11,6 +11,5 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
 
     OrderItem findFirstByOrder(Order order);
 
-    OrderItem findFirstByProduct(Product product);
 
 }

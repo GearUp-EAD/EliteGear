@@ -6,7 +6,8 @@ import java.util.Set;
 import java.util.UUID;
 
 @Data
-public class SizeTypeDTO {
-    private UUID sizeTypeId;
-    private String name;
+public class CreateOrderDTO {
+    private UUID customerId;
+    private Set<CreateOrderItemDTO> items;
 }
+

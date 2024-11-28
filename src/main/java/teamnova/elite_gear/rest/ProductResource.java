@@ -48,8 +48,8 @@ public class ProductResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ProductDTO createProduct(@RequestBody CreateProductRequest request) {
-        return productService.createProduct(request);
+    public List<ProductDTO> createProducts(@RequestBody List<CreateProductRequest> requests) {
+        return productService.createProducts(requests);
     }
 
 

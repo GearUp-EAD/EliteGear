@@ -17,23 +17,25 @@ public class SizeResource {
     private final SizeService sizeService;
 
     @PostMapping
-    public ResponseEntity<SizeDTO> createSize(@RequestBody SizeDTO sizeDTO) {
-        return ResponseEntity.ok(sizeService.createSize(sizeDTO));
+    public ResponseEntity<List<SizeDTO>> createSizes(@RequestBody List<SizeDTO> sizeDTOs) {
+        List<SizeDTO> createdSizes = sizeService.createSizes(sizeDTOs);
+        return ResponseEntity.ok(createdSizes);
     }
+
 
     @PostMapping("/type")
     public ResponseEntity<SizeTypeDTO> createSizeType(@RequestBody SizeTypeDTO sizeTypeDTO) {
         return ResponseEntity.ok(sizeService.createSizeType(sizeTypeDTO));
     }
 
-    @GetMapping("/types")
+    @GetMapping("/type")
     public ResponseEntity<List<SizeTypeDTO>> getSizeTypes() {
         return ResponseEntity.ok(sizeService.getSizeTypes());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SizeDTO> getSize(@PathVariable UUID id) {
-        return ResponseEntity.ok(sizeService.getSize(id));
+    @GetMapping
+    public ResponseEntity<List<SizeDTO>> getSize() {
+        return ResponseEntity.ok(sizeService.getAllSizes());
     }
 
     @GetMapping("/type/{sizeTypeId}")
