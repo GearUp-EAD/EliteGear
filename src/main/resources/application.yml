@@ -54,5 +54,8 @@ stripe:
   secret:
     key: sk_test_51QKG2bCmGq871jAEaUwWAqLQdLQzHflVtP5khHAhQFwPEr6q71VwZhFa4uI4FYGLs8csyA0j9eWAq8xLimLREGBU002iDZ7DhK
 
+merchant:
+  id: 1228650
+  secret : NTI0MDQ4MDY1Njc2MDg3MDUxMTE5MTQwMDI1MTExNjIxNDE2OQ==
 
 #this is tests

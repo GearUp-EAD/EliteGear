@@ -5,14 +5,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import teamnova.elite_gear.domain.Order;
 import teamnova.elite_gear.domain.Payment;
 import teamnova.elite_gear.model.PaymentDTO;
+import teamnova.elite_gear.model.PaymentNotification;
+import teamnova.elite_gear.model.PaymentRequest;
+import teamnova.elite_gear.model.PaymentResponse;
 import teamnova.elite_gear.repos.OrderRepository;
 import teamnova.elite_gear.repos.PaymentRepository;
 import teamnova.elite_gear.util.NotFoundException;
+
 
 
 @Service
@@ -20,6 +26,12 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+
+    @Value("${merchant.id}")
+    private String merchantId;
+
+    @Value("${merchant.secret}")
+    private String merchantSecret;
 
     public PaymentService(final PaymentRepository paymentRepository,
                           final OrderRepository orderRepository) {
@@ -59,6 +71,50 @@ public class PaymentService {
     }
 
 
+    public PaymentResponse startPayment(PaymentRequest request) throws NoSuchAlgorithmException {
+        String orderId = request.getOrder_id();
+        String amount = request.getAmount();
+        String currency = request.getCurrency();
+        System.out.println("Received payment request for order: " + orderId + " amount: " + amount + " currency: " + currency);
+
+        // Generate hash
+        String hash = generateHash(merchantId + orderId + amount + currency +
+                generateHash(merchantSecret).toUpperCase()).toUpperCase();
+
+        return new PaymentResponse(merchantId, hash);
+    }
+
+    public UUID processPaymentNotification(PaymentNotification notification) throws NoSuchAlgorithmException {
+        String localMd5Sig = generateHash(
+                merchantId +
+                        notification.getOrder_id() +
+                        notification.getPayhere_amount() +
+                        notification.getPayhere_currency() +
+                        notification.getStatus_code() +
+                        generateHash(merchantSecret).toUpperCase()
+        ).toUpperCase();
+
+        if (localMd5Sig.equals(notification.getMd5sig()) && "2".equals(notification.getStatus_code())) {
+            System.out.println("Payment successful for order: " + notification.getOrder_id());
+
+
+
+            Payment payment = new Payment();
+            String amount = notification.getPayhere_amount();
+            payment.setPaymentAmount(Integer.parseInt(amount));
+            System.out.println("Payment amount: " + payment.getPaymentAmount());
+            payment.setPaymentDate(java.time.LocalDate.now());
+            System.out.println("Payment date: " + payment.getPaymentDate());
+            payment.setPaymentMethod("PayHere");
+            payment.setOrder(orderRepository.findById(UUID.fromString(notification.getOrder_id())).orElseThrow(() -> new NotFoundException("order not found")));
+            System.out.println("Order: " + payment.getOrder().getOrderID());
+            return paymentRepository.save(payment).getId();
+
+        } else {
+            System.out.println("Payment verification failed for order: " + notification.getOrder_id());
+            return null;
+        }
+    }
 
 
 
@@ -96,5 +152,6 @@ public class PaymentService {
         }
         return sb.toString();
     }
+
 
 }

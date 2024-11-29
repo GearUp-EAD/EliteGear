@@ -1,7 +1,6 @@
 package teamnova.elite_gear.rest;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -12,24 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamnova.elite_gear.model.*;
 import teamnova.elite_gear.service.PaymentService;
-import teamnova.elite_gear.service.OrderService;
 
 
 @RestController
 @RequestMapping(value = "/api/payments", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PaymentResource {
 
-    private static final String MERCHANT_ID = "1228650";
-    private static final String MERCHANT_SECRET = "NTI0MDQ4MDY1Njc2MDg3MDUxMTE5MTQwMDI1MTExNjIxNDE2OQ=="; // Replace with your Merchant Secret
 
     private final PaymentService paymentService;
-    private final OrderService orderService;
 
 
-    public PaymentResource(final PaymentService paymentService,
-                           final OrderService orderService) {
+    public PaymentResource(final PaymentService paymentService) {
         this.paymentService = paymentService;
-        this.orderService = orderService;
     }
 
     @GetMapping
@@ -53,59 +46,19 @@ public class PaymentResource {
     @PostMapping("/start")
     @ApiResponse(responseCode = "200")
     public PaymentResponse startPayment(@RequestBody PaymentRequest request) throws NoSuchAlgorithmException {
-        String orderId = request.getOrder_id();
-        String amount = request.getAmount();
-        String currency = request.getCurrency();
-        System.out.println("Received payment request for order: " + orderId + " amount: " + amount + " currency: " + currency);
-
-
-        // Generate hash
-        String hash = paymentService.generateHash(MERCHANT_ID + orderId + amount + currency +
-                paymentService.generateHash(MERCHANT_SECRET).toUpperCase()).toUpperCase();
-
-
-
-        return new PaymentResponse(MERCHANT_ID, hash);
+        return paymentService.startPayment(request);
     }
-
 
 
     @PostMapping(value = "/notify", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ApiResponse(responseCode = "200")
-    public void paymentNotification(@ModelAttribute PaymentNotification notification, HttpServletResponse response) throws NoSuchAlgorithmException {
-        try {
-            // Add logging to see what data is coming in
-            System.out.println("Received notification data: " + notification.getPayhere_amount() + notification.getPayhere_currency())  ;
+    public ResponseEntity<UUID> paymentNotification(@ModelAttribute PaymentNotification notification) throws NoSuchAlgorithmException {
 
-            String localMd5Sig = paymentService.generateHash(
-                    MERCHANT_ID +
-                            notification.getOrder_id() +
-                            notification.getPayhere_amount() +
-                            notification.getPayhere_currency() +
-                            notification.getStatus_code() +
-                            paymentService.generateHash(MERCHANT_SECRET).toUpperCase()
-            ).toUpperCase();
+            UUID paymentId = paymentService.processPaymentNotification(notification);
 
-
-            if (localMd5Sig.equals(notification.getMd5sig()) && "2".equals(notification.getStatus_code())) {
-                System.out.println("Payment successful for order: " + notification.getOrder_id());
-                PaymentDTO paymentDTO = new PaymentDTO();
-                paymentDTO.setPaymentAmount(Integer.parseInt(notification.getPayhere_amount()));
-                paymentDTO.setPaymentDate(java.time.LocalDate.now());
-                paymentDTO.setPaymentMethod("PayHere");
-                paymentDTO.setOrder(UUID.fromString(notification.getOrder_id()));
-
-                response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-                System.out.println("Payment verification failed for order: " + notification.getOrder_id());
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            System.out.println("Error processing payment notification: " + e.getMessage());
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(paymentId);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<UUID> updatePayment(@PathVariable(name = "id") final UUID id,
