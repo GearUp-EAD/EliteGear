@@ -20,5 +20,6 @@ public class ProductDTO {
     private String description;
     private Integer basePrice;
     private String categoryName;
+    private String imageUrl;
     private List<ProductVariantDTO> variants;
 }

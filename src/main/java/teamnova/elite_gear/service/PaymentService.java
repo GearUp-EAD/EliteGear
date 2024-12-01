@@ -95,19 +95,18 @@ public class PaymentService {
         ).toUpperCase();
 
         if (localMd5Sig.equals(notification.getMd5sig()) && "2".equals(notification.getStatus_code())) {
-            System.out.println("Payment successful for order: " + notification.getOrder_id());
 
 
 
             Payment payment = new Payment();
             String amount = notification.getPayhere_amount();
-            payment.setPaymentAmount(Integer.parseInt(amount));
-            System.out.println("Payment amount: " + payment.getPaymentAmount());
+            payment.setPaymentAmount((int) Double.parseDouble(amount));;
             payment.setPaymentDate(java.time.LocalDate.now());
-            System.out.println("Payment date: " + payment.getPaymentDate());
             payment.setPaymentMethod("PayHere");
+            System.out.println();
             payment.setOrder(orderRepository.findById(UUID.fromString(notification.getOrder_id())).orElseThrow(() -> new NotFoundException("order not found")));
             System.out.println("Order: " + payment.getOrder().getOrderID());
+            System.out.println("Payment verification successful for order: " + notification.getOrder_id());
             return paymentRepository.save(payment).getId();
 
         } else {

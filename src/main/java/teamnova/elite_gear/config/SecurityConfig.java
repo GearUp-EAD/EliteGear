@@ -3,6 +3,7 @@ package teamnova.elite_gear.config;
 import java.util.*;
 import java.util.stream.Stream;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -17,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -54,11 +56,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http,
                                                                  Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter) throws Exception {
+        
+
+
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+
         http.oauth2ResourceServer(resourceServer -> {
             resourceServer.jwt(jwtDecoder -> {
                 jwtDecoder.jwtAuthenticationConverter(jwtAuthenticationConverter);
             });
         });
+
 
         http.sessionManagement(sessions -> {
             sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -66,7 +74,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(requests -> {
             requests.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-            requests.anyRequest().permitAll();
+            requests.anyRequest().authenticated();
         });
 
         // Add CORS configuration

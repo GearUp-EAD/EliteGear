@@ -35,6 +35,11 @@ public class OrderResource {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<OrderDTO>> getOrdersByCustomer(@PathVariable UUID customerId) {
+        return ResponseEntity.ok(orderService.getOrdersByCustomerId(customerId));
+    }
+
 
     @PostMapping
     public ResponseEntity<List<OrderDTO>> createOrders(@RequestBody List<CreateOrderDTO> createOrderDTOs) {

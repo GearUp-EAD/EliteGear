@@ -75,6 +75,12 @@ public class OrderService {
         return convertToDTO(order);
     }
 
+    public List<OrderDTO> getOrdersByCustomerId(UUID customerId) {
+        return orderRepository.findAllByCustomer_CustomerID(customerId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public List<OrderDTO> createOrders(List<CreateOrderDTO> createOrderDTOs) {
         List<OrderDTO> orderDTOs = new ArrayList<>();

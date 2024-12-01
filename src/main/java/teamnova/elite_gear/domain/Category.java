@@ -26,4 +26,8 @@ public class Category {
     @Column(nullable = false, length = 25)
     private String categoryName;
 
+    @Column
+    private String imageUrl;
+
+
 }

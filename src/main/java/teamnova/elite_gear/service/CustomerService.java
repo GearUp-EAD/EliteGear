@@ -2,6 +2,8 @@ package teamnova.elite_gear.service;
 
 import java.util.List;
 import java.util.UUID;
+
+import org.json.JSONObject;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import teamnova.elite_gear.domain.Customer;
@@ -55,13 +57,30 @@ public class CustomerService {
         customerRepository.deleteById(customerID);
     }
 
+    public UUID checkCustomer(final JSONObject jsonObject) {
+        if (!customerRepository.existsByEmailIgnoreCase(jsonObject.getString("email"))) {
+            Customer customer = new Customer();
+            jsonObjectMapToEntity(jsonObject, customer);
+            return customerRepository.save(customer).getCustomerID();
+        } else {
+            return customerRepository.findByEmailIgnoreCase(jsonObject.getString("email")).get().getCustomerID();
+        }
+    }
+
     private CustomerDTO mapToDTO(final Customer customer, final CustomerDTO customerDTO) {
         customerDTO.setCustomerID(customer.getCustomerID());
         customerDTO.setName(customer.getName());
         customerDTO.setEmail(customer.getEmail());
         customerDTO.setAddress(customer.getAddress());
         customerDTO.setPhoneNumber(customer.getPhoneNumber());
+        customerDTO.setImageUrl(customer.getImageUrl());
         return customerDTO;
+    }
+
+    private Customer jsonObjectMapToEntity (JSONObject jsonObject, final Customer customer) {
+        customer.setName(jsonObject.getString("name"));
+        customer.setEmail(jsonObject.getString("email"));
+        return customer;
     }
 
     private Customer mapToEntity(final CustomerDTO customerDTO, final Customer customer) {
@@ -69,6 +88,7 @@ public class CustomerService {
         customer.setEmail(customerDTO.getEmail());
         customer.setAddress(customerDTO.getAddress());
         customer.setPhoneNumber(customerDTO.getPhoneNumber());
+        customer.setImageUrl(customerDTO.getImageUrl());
         return customer;
     }
 

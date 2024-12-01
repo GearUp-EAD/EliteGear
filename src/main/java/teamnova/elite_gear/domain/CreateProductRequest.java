@@ -11,5 +11,6 @@ public class CreateProductRequest {
     private String description;
     private Integer basePrice;
     private UUID categoryId;
+    private String imageUrl;
     private List<CreateVariantRequest> variants;
 }

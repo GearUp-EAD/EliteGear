@@ -17,4 +17,6 @@ public class CategoryDTO {
     @Size(max = 25)
     private String categoryName;
 
+    private String imageUrl;
+
 }

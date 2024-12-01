@@ -58,11 +58,13 @@ public class CategoryService {
     private CategoryDTO mapToDTO(final Category category, final CategoryDTO categoryDTO) {
         categoryDTO.setOrderItemID(category.getCategoryId());
         categoryDTO.setCategoryName(category.getCategoryName());
+        categoryDTO.setImageUrl(category.getImageUrl());
         return categoryDTO;
     }
 
     private Category mapToEntity(final CategoryDTO categoryDTO, final Category category) {
         category.setCategoryName(categoryDTO.getCategoryName());
+        category.setImageUrl(categoryDTO.getImageUrl());
         return category;
     }
 

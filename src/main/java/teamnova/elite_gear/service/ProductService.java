@@ -34,6 +34,7 @@ public class ProductService {
             product.setName(request.getName());
             product.setDescription(request.getDescription());
             product.setBasePrice(request.getBasePrice());
+            product.setImageUrl(request.getImageUrl());
 
             // 2. Set category
             Category category = categoryRepository.findById(request.getCategoryId())
@@ -130,6 +131,7 @@ public class ProductService {
         dto.setDescription(product.getDescription());
         dto.setBasePrice(product.getBasePrice());
         dto.setCategoryName(product.getCategory().getCategoryName());
+        dto.setImageUrl(product.getImageUrl());
         dto.setVariants(product.getVariants().stream()
                 .map(this::mapVariantToDTO)
                 .collect(Collectors.toList()));
