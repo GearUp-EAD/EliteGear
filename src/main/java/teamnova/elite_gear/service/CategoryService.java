@@ -70,7 +70,7 @@ public class CategoryService {
     }
 
     private CategoryDTO mapToDTO(final Category category, final CategoryDTO categoryDTO) {
-        categoryDTO.setOrderItemID(category.getCategoryId());
+        categoryDTO.setCategoryID(category.getCategoryId());
         categoryDTO.setCategoryName(category.getCategoryName());
         categoryDTO.setImageUrl(category.getImageUrl());
         categoryDTO.setParentCategoryID(category.getParentCategory() != null ? category.getParentCategory().getCategoryId() : null);

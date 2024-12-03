@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class CategoryDTO {
 
-    private UUID orderItemID;
+    private UUID categoryID;
 
     @NotNull
     @Size(max = 25)

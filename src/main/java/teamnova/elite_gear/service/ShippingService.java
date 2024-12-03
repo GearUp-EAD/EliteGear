@@ -37,6 +37,12 @@ public class ShippingService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public ShippingDTO getByOrderID(final UUID orderID) {
+        return shippingRepository.findByOrderOrderID(orderID)
+                .map(shipping -> mapToDTO(shipping, new ShippingDTO()))
+                .orElseThrow(NotFoundException::new);
+    }
+
     public UUID create(final ShippingDTO shippingDTO) {
         final Shipping shipping = new Shipping();
         mapToEntity(shippingDTO, shipping);

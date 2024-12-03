@@ -39,6 +39,13 @@ public class ShippingResource {
             @PathVariable(name = "shippingID") final UUID shippingID) {
         return ResponseEntity.ok(shippingService.get(shippingID));
     }
+    @GetMapping("/order/{orderID}")
+    public ResponseEntity<ShippingDTO> getShippingByOrderID(
+            @PathVariable(name = "orderID") final UUID orderID) {
+
+
+        return ResponseEntity.ok(shippingService.getByOrderID(orderID));
+    }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
