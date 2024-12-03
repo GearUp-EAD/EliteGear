@@ -74,7 +74,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(requests -> {
             requests.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-            requests.anyRequest().authenticated();
+            requests.anyRequest().permitAll();
         });
 
         // Add CORS configuration

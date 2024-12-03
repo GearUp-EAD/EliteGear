@@ -35,9 +35,19 @@ public class OrderResource {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
+    @GetMapping("oderCount/{customerId}")
+    public ResponseEntity<Integer> getOrderCountByCustomer(@PathVariable UUID customerId) {
+        return ResponseEntity.ok(orderService.oderCount(customerId));
+    }
+
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<OrderDTO>> getOrdersByCustomer(@PathVariable UUID customerId) {
         return ResponseEntity.ok(orderService.getOrdersByCustomerId(customerId));
+    }
+
+    @GetMapping("/totalAmount/{customerId}")
+    public ResponseEntity<Integer> getTotalAmountByCustomer(@PathVariable UUID customerId) {
+        return ResponseEntity.ok(orderService.getTotalAmount(customerId));
     }
 
 

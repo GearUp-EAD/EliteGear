@@ -1,16 +1,17 @@
-package teamnova.elite_gear.model;
+package teamnova.elite_gear.model.adminDTO;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import teamnova.elite_gear.model.CustomerEmailUnique;
+import teamnova.elite_gear.model.CustomerPhoneNumberUnique;
 
 
 @Getter
 @Setter
-public class CustomerDTO {
+public class CustomerDetails {
 
     private UUID customerID;
 
@@ -32,5 +33,10 @@ public class CustomerDTO {
     private Integer phoneNumber;
 
     private String imageUrl;
+
+    private Integer oderCount;
+
+    private Integer totalSpent;
+
 
 }

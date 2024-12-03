@@ -160,6 +160,14 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    public Integer oderCount(final UUID customerID) {
+        return orderRepository.countByCustomerId(customerID);
+    }
+
+    public Integer getTotalAmount(final UUID customerID) {
+        return orderRepository.getTotalAmountByCustomerId(customerID);
+    }
+
 //    public UUID create(final OrderDTO orderDTO) {
 //        final Order order = new Order();
 //        System.out.println(orderDTO.getCustomer());

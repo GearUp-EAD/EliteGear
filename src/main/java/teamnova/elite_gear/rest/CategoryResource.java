@@ -36,6 +36,16 @@ public class CategoryResource {
         return ResponseEntity.ok(categoryService.findAll());
     }
 
+    @GetMapping("/parents")
+    public ResponseEntity<List<CategoryDTO>> getParentCategories() {
+        return ResponseEntity.ok(categoryService.getParentCategories());
+    }
+
+    @GetMapping("/{parentCategoryID}/subcategories")
+    public ResponseEntity<List<CategoryDTO>> getSubcategories(
+            @PathVariable(name = "parentCategoryID") final UUID parentCategoryID) {
+        return ResponseEntity.ok(categoryService.getSubcategories(parentCategoryID));
+    }
     @GetMapping("/{orderItemID}")
     public ResponseEntity<CategoryDTO> getCategory(
             @PathVariable(name = "orderItemID") final UUID orderItemID) {

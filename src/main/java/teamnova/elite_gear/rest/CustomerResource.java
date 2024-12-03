@@ -40,6 +40,8 @@ public class CustomerResource {
             @PathVariable(name = "customerID") final UUID customerID) {
         return ResponseEntity.ok(customerService.get(customerID));
     }
+
+
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createCustomer(@RequestBody @Valid final CustomerDTO customerDTO) {

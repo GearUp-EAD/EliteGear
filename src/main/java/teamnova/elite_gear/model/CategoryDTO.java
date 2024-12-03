@@ -19,4 +19,6 @@ public class CategoryDTO {
 
     private String imageUrl;
 
+    private UUID parentCategoryID;
+
 }

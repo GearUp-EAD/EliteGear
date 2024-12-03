@@ -38,6 +38,20 @@ public class CategoryService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public List<CategoryDTO> getParentCategories() {
+        final List<Category> categories = categoryRepository.findByParentCategoryIsNull();
+        return categories.stream()
+                .map(category -> mapToDTO(category, new CategoryDTO()))
+                .toList();
+    }
+
+    public List<CategoryDTO> getSubcategories(final UUID parentCategoryID) {
+        final List<Category> categories = categoryRepository.findByParentCategory(categoryRepository.findById(parentCategoryID).orElseThrow(NotFoundException::new));
+        return categories.stream()
+                .map(category -> mapToDTO(category, new CategoryDTO()))
+                .toList();
+    }
+
     public UUID create(final CategoryDTO categoryDTO) {
         final Category category = new Category();
         mapToEntity(categoryDTO, category);
@@ -59,12 +73,14 @@ public class CategoryService {
         categoryDTO.setOrderItemID(category.getCategoryId());
         categoryDTO.setCategoryName(category.getCategoryName());
         categoryDTO.setImageUrl(category.getImageUrl());
+        categoryDTO.setParentCategoryID(category.getParentCategory() != null ? category.getParentCategory().getCategoryId() : null);
         return categoryDTO;
     }
 
     private Category mapToEntity(final CategoryDTO categoryDTO, final Category category) {
         category.setCategoryName(categoryDTO.getCategoryName());
         category.setImageUrl(categoryDTO.getImageUrl());
+        category.setParentCategory(categoryDTO.getParentCategoryID() != null ? categoryRepository.findById(categoryDTO.getParentCategoryID()).orElseThrow(NotFoundException::new) : null);
         return category;
     }
 

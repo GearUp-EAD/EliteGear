@@ -15,6 +15,7 @@ import teamnova.elite_gear.util.NotFoundException;
 import teamnova.elite_gear.util.ReferencedWarning;
 
 
+
 @Service
 public class CustomerService {
 
@@ -40,11 +41,16 @@ public class CustomerService {
                 .orElseThrow(NotFoundException::new);
     }
 
+
+
+
     public UUID create(final CustomerDTO customerDTO) {
         final Customer customer = new Customer();
         mapToEntity(customerDTO, customer);
         return customerRepository.save(customer).getCustomerID();
     }
+
+
 
     public void update(final UUID customerID, final CustomerDTO customerDTO) {
         final Customer customer = customerRepository.findById(customerID)

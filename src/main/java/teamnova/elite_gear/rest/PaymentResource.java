@@ -35,6 +35,8 @@ public class PaymentResource {
         return ResponseEntity.ok(paymentService.get(id));
     }
 
+
+
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createPayment(@RequestBody @Valid final PaymentDTO paymentDTO) {
@@ -66,6 +68,7 @@ public class PaymentResource {
         paymentService.update(id, paymentDTO);
         return ResponseEntity.ok(id);
     }
+
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
