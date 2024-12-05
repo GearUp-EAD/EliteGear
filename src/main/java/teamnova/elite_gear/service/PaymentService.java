@@ -11,10 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import teamnova.elite_gear.domain.Order;
 import teamnova.elite_gear.domain.Payment;
-import teamnova.elite_gear.model.PaymentDTO;
-import teamnova.elite_gear.model.PaymentNotification;
-import teamnova.elite_gear.model.PaymentRequest;
-import teamnova.elite_gear.model.PaymentResponse;
+import teamnova.elite_gear.model.*;
 import teamnova.elite_gear.repos.OrderRepository;
 import teamnova.elite_gear.repos.PaymentRepository;
 import teamnova.elite_gear.util.NotFoundException;
@@ -53,6 +50,10 @@ public class PaymentService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public List<PaymentSummaryDTO> getPaymentSummary() {
+        return paymentRepository.getMonthlyPaymentSummary();
+    }
+
     public UUID create(final PaymentDTO paymentDTO) {
         final Payment payment = new Payment();
         mapToEntity(paymentDTO, payment);
@@ -84,6 +85,11 @@ public class PaymentService {
         return new PaymentResponse(merchantId, hash);
     }
 
+    public Integer getTotalPaymentAmount() {
+        return paymentRepository.getTotalPaymentAmount();
+    }
+
+
     public UUID processPaymentNotification(PaymentNotification notification) throws NoSuchAlgorithmException {
         String localMd5Sig = generateHash(
                 merchantId +
@@ -114,6 +120,8 @@ public class PaymentService {
             return null;
         }
     }
+
+
 
 
 
@@ -151,6 +159,7 @@ public class PaymentService {
         }
         return sb.toString();
     }
+
 
 
 }

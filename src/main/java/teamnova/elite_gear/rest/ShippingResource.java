@@ -3,6 +3,7 @@ package teamnova.elite_gear.rest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import teamnova.elite_gear.model.ShippingDTO;
+import teamnova.elite_gear.model.ShippingUpdateDTO;
 import teamnova.elite_gear.service.ShippingService;
 
 
@@ -61,6 +63,14 @@ public class ShippingResource {
         shippingService.update(shippingID, shippingDTO);
         return ResponseEntity.ok(shippingID);
     }
+    @PutMapping("/order/{orderID}")
+    public ResponseEntity<UUID> updateShippingByOrderID(
+            @PathVariable(name = "orderID") final UUID orderID,
+            @RequestBody @Valid final ShippingUpdateDTO shippingUpdateDTO) {
+        shippingService.updateShippingStatus(orderID, shippingUpdateDTO.getShippingStatus());
+        return ResponseEntity.ok(orderID);
+    }
+
 
     @DeleteMapping("/{shippingID}")
     @ApiResponse(responseCode = "204")

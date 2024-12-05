@@ -41,6 +41,13 @@ public class CustomerResource {
         return ResponseEntity.ok(customerService.get(customerID));
     }
 
+    @GetMapping("/first-five")
+    public ResponseEntity<List<CustomerDTO>> getFirstFiveCustomers() {
+        return ResponseEntity.ok(customerService.findFirstFiveCustomers());
+    }
+
+
+
 
     @PostMapping
     @ApiResponse(responseCode = "201")
@@ -68,6 +75,7 @@ public class CustomerResource {
         customerService.delete(customerID);
         return ResponseEntity.noContent().build();
     }
+
 
 
     @GetMapping("/extract-payload")

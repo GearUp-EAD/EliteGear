@@ -35,6 +35,16 @@ public class PaymentResource {
         return ResponseEntity.ok(paymentService.get(id));
     }
 
+    @GetMapping("/total")
+    public ResponseEntity<Integer> getTotalPaymentAmount() {
+        return ResponseEntity.ok(paymentService.getTotalPaymentAmount());
+    }
+
+    @GetMapping("/paymentSummary")
+    public ResponseEntity<List<PaymentSummaryDTO>> getPaymentSummary() {
+        return ResponseEntity.ok(paymentService.getPaymentSummary());
+    }
+
 
 
     @PostMapping

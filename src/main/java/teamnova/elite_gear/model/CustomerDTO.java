@@ -3,6 +3,8 @@ package teamnova.elite_gear.model;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +32,8 @@ public class CustomerDTO {
     @NotNull
     @CustomerPhoneNumberUnique
     private Integer phoneNumber;
+
+    private LocalDateTime createdAt;
 
     private String imageUrl;
 

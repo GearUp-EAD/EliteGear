@@ -1,5 +1,6 @@
 package teamnova.elite_gear.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,6 +74,13 @@ public class CustomerService {
         }
     }
 
+    public List<CustomerDTO> findFirstFiveCustomers() {
+        List<Customer> customers = customerRepository.findFirstFiveCustomers();
+        return customers.stream()
+                .map(customer -> mapToDTO(customer, new CustomerDTO()))
+                .toList();
+    }
+
     private CustomerDTO mapToDTO(final Customer customer, final CustomerDTO customerDTO) {
         customerDTO.setCustomerID(customer.getCustomerID());
         customerDTO.setName(customer.getName());
@@ -80,12 +88,16 @@ public class CustomerService {
         customerDTO.setAddress(customer.getAddress());
         customerDTO.setPhoneNumber(customer.getPhoneNumber());
         customerDTO.setImageUrl(customer.getImageUrl());
+        customerDTO.setCreatedAt(customer.getCreatedAt());
         return customerDTO;
     }
 
     private Customer jsonObjectMapToEntity (JSONObject jsonObject, final Customer customer) {
         customer.setName(jsonObject.getString("name"));
         customer.setEmail(jsonObject.getString("email"));
+        customer.setAddress(jsonObject.getString("address"));
+        customer.setPhoneNumber(jsonObject.getInt("phoneNumber"));
+        customer.setCreatedAt(LocalDateTime.now());
         return customer;
     }
 
@@ -95,6 +107,7 @@ public class CustomerService {
         customer.setAddress(customerDTO.getAddress());
         customer.setPhoneNumber(customerDTO.getPhoneNumber());
         customer.setImageUrl(customerDTO.getImageUrl());
+        customer.setCreatedAt(LocalDateTime.now());
         return customer;
     }
 

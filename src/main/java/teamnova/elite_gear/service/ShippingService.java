@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import teamnova.elite_gear.domain.Order;
 import teamnova.elite_gear.domain.Shipping;
 import teamnova.elite_gear.model.ShippingDTO;
@@ -56,6 +57,11 @@ public class ShippingService {
         shippingRepository.save(shipping);
     }
 
+    @Transactional
+    public void updateShippingStatus(UUID shippingID, String newStatus) {
+        shippingRepository.updateShippingStatusByOrderID(shippingID, newStatus);
+    }
+
     public void delete(final UUID shippingID) {
         shippingRepository.deleteById(shippingID);
     }
@@ -68,6 +74,7 @@ public class ShippingService {
         shippingDTO.setOrder(shipping.getOrder() == null ? null : shipping.getOrder().getOrderID());
         return shippingDTO;
     }
+
 
     private Shipping mapToEntity(final ShippingDTO shippingDTO, final Shipping shipping) {
         shipping.setShippingDate(shippingDTO.getShippingDate());
