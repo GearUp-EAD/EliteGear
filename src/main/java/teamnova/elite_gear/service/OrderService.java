@@ -82,10 +82,8 @@ public class OrderService {
     }
 
     @Transactional
-    public List<OrderDTO> createOrders(List<CreateOrderDTO> createOrderDTOs) {
-        List<OrderDTO> orderDTOs = new ArrayList<>();
+    public UUID createOrders(CreateOrderDTO createOrderDTO) {
 
-        for (CreateOrderDTO createOrderDTO : createOrderDTOs) {
             // Process each order individually
             Customer customer = customerRepository.findById(createOrderDTO.getCustomerId())
                     .orElseThrow(() -> new RuntimeException("Customer not found"));
@@ -126,12 +124,10 @@ public class OrderService {
 
             order.setTotalAmount(totalAmount);
             Order savedOrder = orderRepository.save(order);
-
             // Convert to DTO and add to the list
-            orderDTOs.add(convertToDTO(savedOrder));
-        }
 
-        return orderDTOs;
+
+        return             savedOrder.getOrderID();
     }
 
 
