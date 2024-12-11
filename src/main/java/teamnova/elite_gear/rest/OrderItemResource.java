@@ -48,6 +48,11 @@ public class OrderItemResource {
         return ResponseEntity.ok(orderItemService.get(orderItemID));
     }
 
+    @GetMapping("/mostSellingProducts")
+    public ResponseEntity<List<Object[]>> getMostSellingProducts() {
+        return ResponseEntity.ok(orderItemService.findMostSellingProducts());
+    }
+
 //    @PostMapping
 //    @ApiResponse(responseCode = "201")
 //    public ResponseEntity<List<UUID>> createOrderItems(

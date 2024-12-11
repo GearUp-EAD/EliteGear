@@ -49,6 +49,10 @@ public class OrderItemService {
         return orderItemRepository.save(orderItem).getOrderItemID();
     }
 
+    public List <Object[]> findMostSellingProducts() {
+        return orderItemRepository.findMostSellingProducts();
+    }
+
 
     public void update(final UUID orderItemID, final OrderItemDTO orderItemDTO) {
         final OrderItem orderItem = orderItemRepository.findById(orderItemID)

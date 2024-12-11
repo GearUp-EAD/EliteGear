@@ -45,6 +45,15 @@ public class PaymentResource {
         return ResponseEntity.ok(paymentService.getPaymentSummary());
     }
 
+    @GetMapping("/latestFiveTransactions")
+    public ResponseEntity<List<Object[]>> getLatestFiveTransactions() {
+        return ResponseEntity.ok(paymentService.getLatestFiveTransactions());
+    }
+
+    @GetMapping("/MonthlyPaymentGrowth")
+    public ResponseEntity<List<Object[]>> getMonthlyPaymentGrowth() {
+        return ResponseEntity.ok(paymentService.getMonthlyPaymentGrowth());
+    }
 
 
     @PostMapping

@@ -54,6 +54,14 @@ public class PaymentService {
         return paymentRepository.getMonthlyPaymentSummary();
     }
 
+    public List<Object[]> getLatestFiveTransactions() {
+        return paymentRepository.findLatestFiveTransactionsNative();
+    }
+
+    public List<Object[]> getMonthlyPaymentGrowth() {
+        return paymentRepository.getMonthlyPaymentGrowth();
+    }
+
     public UUID create(final PaymentDTO paymentDTO) {
         final Payment payment = new Payment();
         mapToEntity(paymentDTO, payment);
