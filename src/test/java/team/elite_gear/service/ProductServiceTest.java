@@ -1,11 +1,10 @@
-package team.elite_gear;
+package team.elite_gear.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -14,7 +13,6 @@ import teamnova.elite_gear.domain.*;
 import teamnova.elite_gear.model.*;
 import teamnova.elite_gear.repos.*;
 import teamnova.elite_gear.service.ProductService;
-import teamnova.elite_gear.util.NotFoundException;
 
 import java.util.*;
 

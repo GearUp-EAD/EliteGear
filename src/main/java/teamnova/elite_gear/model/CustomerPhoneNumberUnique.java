@@ -30,10 +30,14 @@ import teamnova.elite_gear.service.CustomerService;
 )
 public @interface CustomerPhoneNumberUnique {
 
-    String message() default "{Exists.customer.phoneNumber}";
+//    String message() default "{Exists.customer.phoneNumber}";
+//
+//    Class<?>[] groups() default {};
+//
+//    Class<? extends Payload>[] payload() default {};
 
+    String message() default "Phone number must be unique";
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 
     class CustomerPhoneNumberUniqueValidator implements ConstraintValidator<CustomerPhoneNumberUnique, Integer> {

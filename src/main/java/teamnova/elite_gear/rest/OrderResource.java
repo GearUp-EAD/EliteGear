@@ -52,9 +52,9 @@ public class OrderResource {
 
 
     @PostMapping
-    public UUID createOrders(@RequestBody CreateOrderDTO createOrderDTO) {
+    public ResponseEntity<UUID> createOrders(@RequestBody CreateOrderDTO createOrderDTO) {
         UUID orders = orderService.createOrders(createOrderDTO);
-        return orders;
+        return ResponseEntity.status(HttpStatus.CREATED).body(orders);
     }
 
 

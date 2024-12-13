@@ -5,6 +5,9 @@ import jakarta.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +62,9 @@ public class PaymentResource {
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createPayment(@RequestBody @Valid final PaymentDTO paymentDTO) {
+        Logger logger = LoggerFactory.getLogger(PaymentResource.class);
         final UUID createdId = paymentService.create(paymentDTO);
+        logger.info("Created Payment ID: {}", createdId);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 

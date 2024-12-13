@@ -47,8 +47,6 @@ public class CustomerResource {
     }
 
 
-
-
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createCustomer(@RequestBody @Valid final CustomerDTO customerDTO) {
@@ -75,8 +73,6 @@ public class CustomerResource {
         customerService.delete(customerID);
         return ResponseEntity.noContent().build();
     }
-
-
 
     @GetMapping("/extract-payload")
     public UUID extractJwtPayload(@RequestHeader("Authorization") String authorizationHeader) {

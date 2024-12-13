@@ -1,4 +1,4 @@
-package team.elite_gear;
+package team.elite_gear.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import teamnova.elite_gear.domain.Product;
 import teamnova.elite_gear.model.ProductDTO;
 import teamnova.elite_gear.rest.ProductResource;
 import teamnova.elite_gear.service.ProductService;

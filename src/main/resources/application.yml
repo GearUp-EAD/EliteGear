@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/EliteGear}
-    username: ${JDBC_DATABASE_USERNAME:postgres}
-    password: ${JDBC_DATABASE_PASSWORD:P4ssword!}
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://35.209.114.249:5433/EliteGear}
+    username: ${JDBC_DATABASE_USERNAME:admin}
+    password: ${JDBC_DATABASE_PASSWORD:admin}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10

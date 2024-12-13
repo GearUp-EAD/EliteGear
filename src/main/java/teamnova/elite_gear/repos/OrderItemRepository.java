@@ -13,6 +13,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
 
     OrderItem findFirstByOrder(Order order);
 
+
         @Query("SELECT p.name, SUM(oi.quantity) AS totalSold " +
                 "FROM OrderItem oi " +
                 "JOIN oi.productVariant pv " +
