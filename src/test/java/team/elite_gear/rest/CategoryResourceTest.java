@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class CategoryResourceTest {
+public class CategoryResourceTest {
 
     private MockMvc mockMvc;
 

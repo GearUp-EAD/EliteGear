@@ -16,7 +16,7 @@ import teamnova.elite_gear.service.ProductService;
 
 import java.util.*;
 
-class ProductServiceTest {
+public class ProductServiceTest {
 
     @InjectMocks
     private ProductService productService;

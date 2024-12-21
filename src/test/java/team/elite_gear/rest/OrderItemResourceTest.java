@@ -12,10 +12,8 @@ import teamnova.elite_gear.rest.OrderItemResource;
 import teamnova.elite_gear.service.OrderItemService;
 import teamnova.elite_gear.service.OrderService;
 import teamnova.elite_gear.service.ProductService;
-
 import java.util.Collections;
 import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -23,7 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class OrderItemResourceTest {
+public class OrderItemResourceTest {
 
     private MockMvc mockMvc;
 

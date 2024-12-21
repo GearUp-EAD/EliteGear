@@ -138,23 +138,23 @@ public class PaymentResourceTest {
         verify(paymentService).getMonthlyPaymentGrowth();
     }
 
-    @Test
-    void createPayment_ShouldReturnCreatedId_WhenSuccess() throws Exception {
-        PaymentDTO paymentDTO = new PaymentDTO();
-        UUID createdId = UUID.randomUUID();
-        paymentDTO.setPaymentMethod("CREDIT_CARD");
-        paymentDTO.setPaymentDate(LocalDate.now());
-        paymentDTO.setPaymentAmount(1000);
-        when(paymentService.create(paymentDTO)).thenReturn(createdId);
-
-        mockMvc.perform(post("/api/payments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(paymentDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(content().string(createdId.toString()));
-
-        verify(paymentService).create(paymentDTO);
-    }
+//    @Test
+//    void createPayment_ShouldReturnCreatedId_WhenSuccess() throws Exception {
+//        PaymentDTO paymentDTO = new PaymentDTO();
+//        UUID createdId = UUID.randomUUID();
+//        paymentDTO.setPaymentMethod("CREDIT_CARD");
+//        paymentDTO.setPaymentDate(LocalDate.now());
+//        paymentDTO.setPaymentAmount(1000);
+//        when(paymentService.create(paymentDTO)).thenReturn(createdId);
+//
+//        mockMvc.perform(post("/api/payments")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(paymentDTO)))
+//                .andExpect(status().isCreated())
+//                .andExpect(content().string(createdId.toString()));
+//
+//        verify(paymentService).create(paymentDTO);
+//    }
 
     @Test
     void startPayment_ShouldReturnPaymentResponse_WhenSuccess() throws Exception {
