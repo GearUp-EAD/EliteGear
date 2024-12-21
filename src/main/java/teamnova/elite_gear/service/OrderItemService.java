@@ -69,7 +69,7 @@ public class OrderItemService {
         orderItemDTO.setOrderItemID(orderItem.getOrderItemID());
         orderItemDTO.setQuantity(orderItem.getQuantity());
         orderItemDTO.setUnitPrice(orderItem.getUnitPrice());
-        orderItemDTO.setOrderItemID(orderItem.getOrder() == null ? null : orderItem.getOrder().getOrderID());
+//        orderItemDTO.setOrderItemID(orderItem.getOrder() == null ? null : orderItem.getOrder().getOrderID());
         orderItemDTO.setProductVariantId(orderItem.getProductVariant() == null ? null : orderItem.getProductVariant().getVariantId());
         return orderItemDTO;
     }
