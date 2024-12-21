@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/EliteGear}
-    username: ${JDBC_DATABASE_USERNAME:postgres}
-    password: ${JDBC_DATABASE_PASSWORD:<<YOUR_PASSWORD>>}
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://35.209.114.249:5433/EliteGear}
+    username: ${JDBC_DATABASE_USERNAME:admin}
+    password: ${JDBC_DATABASE_PASSWORD:admin}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
@@ -17,6 +17,11 @@ spring:
             non_contextual_creation: true
         id:
           new_generator_mappings: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/Elite-Gear
   docker:
     compose:
       lifecycle-management: start-only
@@ -34,3 +39,23 @@ error:
       OrderShippingUnique: ORDER_SHIPPING_UNIQUE
 springdoc:
   pathsToMatch: /, /api/**
+
+keycloak:
+  auth-server-url: http://localhost:8081
+  realm: Elite-Gear
+  client-id: Elite-Gear
+  client-secret: mgQ8X0lKWgi0M6Fxc9ezOmbPnBmtYlQT
+  admin:
+    username: admin
+    password: 12345
+
+
+stripe:
+  secret:
+    key: sk_test_51QKG2bCmGq871jAEaUwWAqLQdLQzHflVtP5khHAhQFwPEr6q71VwZhFa4uI4FYGLs8csyA0j9eWAq8xLimLREGBU002iDZ7DhK
+
+merchant:
+  id: 1228650
+  secret : NTI0MDQ4MDY1Njc2MDg3MDUxMTE5MTQwMDI1MTExNjIxNDE2OQ==
+
+#this is tests

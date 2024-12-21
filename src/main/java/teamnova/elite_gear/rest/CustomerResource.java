@@ -2,23 +2,22 @@ package teamnova.elite_gear.rest;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import teamnova.elite_gear.model.CustomerDTO;
 import teamnova.elite_gear.service.CustomerService;
 import teamnova.elite_gear.util.ReferencedException;
 import teamnova.elite_gear.util.ReferencedWarning;
+
 
 
 @RestController
@@ -41,6 +40,12 @@ public class CustomerResource {
             @PathVariable(name = "customerID") final UUID customerID) {
         return ResponseEntity.ok(customerService.get(customerID));
     }
+
+    @GetMapping("/first-five")
+    public ResponseEntity<List<CustomerDTO>> getFirstFiveCustomers() {
+        return ResponseEntity.ok(customerService.findFirstFiveCustomers());
+    }
+
 
     @PostMapping
     @ApiResponse(responseCode = "201")
@@ -69,4 +74,19 @@ public class CustomerResource {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/extract-payload")
+    public UUID extractJwtPayload(@RequestHeader("Authorization") String authorizationHeader) {
+
+        try {
+            String token = authorizationHeader.replace("Bearer ", "").trim();
+            String[] tokenParts = token.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(tokenParts[1]), StandardCharsets.UTF_8);
+
+            JSONObject jsonObject = new JSONObject(payload);
+            return customerService.checkCustomer(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to decode the JWT payload: " + e.getMessage());
+        }
+    }
 }

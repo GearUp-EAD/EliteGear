@@ -1,23 +1,26 @@
 package teamnova.elite_gear.repos;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import teamnova.elite_gear.domain.Customer;
 import teamnova.elite_gear.domain.Order;
-import teamnova.elite_gear.domain.Payment;
-import teamnova.elite_gear.domain.Shipping;
 
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     Order findFirstByCustomer(Customer customer);
 
-    Order findFirstByPayment(Payment payment);
+    List<Order> findAllByCustomer_CustomerID(UUID customerId);
 
-    Order findFirstByShipping(Shipping shipping);
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.customer.customerID = :customerId")
+    Integer countByCustomerId(@Param("customerId") UUID customerId);
 
-    boolean existsByPaymentId(UUID id);
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.customer.customerID = :customerId")
+    Integer getTotalAmountByCustomerId(@Param("customerId") UUID customerId);
 
-    boolean existsByShippingShippingID(UUID shippingID);
+
 
 }

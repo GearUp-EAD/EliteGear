@@ -1,15 +1,93 @@
 services:
   postgres:
+    container_name: postgres
     image: postgres:17.0
     environment:
     - POSTGRES_DB=EliteGear
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=P4ssword!
     ports:
-    - 5433:5432
+    - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  elite-gear:
+    container_name: elite-gear
+    image: elite-gear:1.0
+    environment:
+      JDBC_DATABASE_URL: jdbc:postgresql://35.209.114.249:5433/EliteGear
+      JDBC_DATABASE_USERNAME: admin
+      JDBC_DATABASE_PASSWORD: admin
+    ports:
+      - "8080:8080"
+#    depends_on:
+#      - postgres
+
+  elite-gear-2:
+    container_name: elite-gear-2
+    image: elite-gear:1.0
+    environment:
+      JDBC_DATABASE_URL: jdbc:postgresql://35.209.114.249:5433/EliteGear
+      JDBC_DATABASE_USERNAME: admin
+      JDBC_DATABASE_PASSWORD: admin
+    ports:
+      - "8082:8080"
+#    depends_on:
+#      - postgres
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "33000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - elite-gear
+      - elite-gear-2
+
+
+  elite-gear-frontend:
+    image: elite-gear-fe:1.1
+    container_name: elite-gear-frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:25.0.1
+    command:
+      - start-dev
+      - --import-realm
+    ports:
+      - "8081:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Password
+      KC_HTTP_PORT: 8080
+      KC_HOSTNAME_URL: http://localhost:8080
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: true
+      KC_HTTP_RELATIVE_PATH: /
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: P4ssword!
+    depends_on:
+      - postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/auth/health/live' ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
 
 
 

@@ -1,32 +1,22 @@
 package teamnova.elite_gear.model;
 
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import teamnova.elite_gear.util.OrderStatus;
 
 
 @Getter
 @Setter
 public class OrderDTO {
-
     private UUID orderID;
-
-    @Size(max = 255)
-    private String orderDate;
-
-    @Size(max = 255)
-    private String totalAmount;
-
-    @Size(max = 255)
+    private LocalDateTime orderDate;
+    private Integer totalAmount;
     private String status;
-
-    private UUID customer;
-
-    @OrderPaymentUnique
-    private UUID payment;
-
-    @OrderShippingUnique
-    private UUID shipping;
-
+    private UUID customerId;
+    private Set<OrderItemDTO> orderItems;
 }

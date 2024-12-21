@@ -1,97 +1,152 @@
 package teamnova.elite_gear.service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.stripe.model.InvoiceItem;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import teamnova.elite_gear.domain.Category;
-import teamnova.elite_gear.domain.OrderItem;
-import teamnova.elite_gear.domain.Product;
+import teamnova.elite_gear.domain.*;
 import teamnova.elite_gear.model.ProductDTO;
-import teamnova.elite_gear.repos.CategoryRepository;
-import teamnova.elite_gear.repos.OrderItemRepository;
-import teamnova.elite_gear.repos.ProductRepository;
+import teamnova.elite_gear.model.ProductVariantDTO;
+import teamnova.elite_gear.repos.*;
 import teamnova.elite_gear.util.NotFoundException;
 import teamnova.elite_gear.util.ReferencedWarning;
 
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
+    private final ProductVariantRepository variantRepository;
     private final CategoryRepository categoryRepository;
-    private final OrderItemRepository orderItemRepository;
+    private final SizeRepository sizeRepository;
 
-    public ProductService(final ProductRepository productRepository,
-            final CategoryRepository categoryRepository,
-            final OrderItemRepository orderItemRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.orderItemRepository = orderItemRepository;
-    }
+    public List<ProductDTO> createProducts(List<CreateProductRequest> requests) {
+        List<ProductDTO> createdProducts = new ArrayList<>();
 
-    public List<ProductDTO> findAll() {
-        final List<Product> products = productRepository.findAll(Sort.by("productID"));
-        return products.stream()
-                .map(product -> mapToDTO(product, new ProductDTO()))
-                .toList();
-    }
+        for (CreateProductRequest request : requests) {
+            // 1. Create the product
+            Product product = new Product();
+            product.setName(request.getName());
+            product.setDescription(request.getDescription());
+            product.setBasePrice(request.getBasePrice());
+            product.setImageUrl(request.getImageUrl());
 
-    public ProductDTO get(final UUID productID) {
-        return productRepository.findById(productID)
-                .map(product -> mapToDTO(product, new ProductDTO()))
-                .orElseThrow(NotFoundException::new);
-    }
+            // 2. Set category
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
+            product.setCategory(category);
 
-    public UUID create(final ProductDTO productDTO) {
-        final Product product = new Product();
-        mapToEntity(productDTO, product);
-        return productRepository.save(product).getProductID();
-    }
+            // 3. Save the product
+            product = productRepository.save(product);
 
-    public void update(final UUID productID, final ProductDTO productDTO) {
-        final Product product = productRepository.findById(productID)
-                .orElseThrow(NotFoundException::new);
-        mapToEntity(productDTO, product);
-        productRepository.save(product);
-    }
+            // 4. Create and save variants
+            Set<ProductVariant> variants = new HashSet<>();
+            for (CreateVariantRequest variantRequest : request.getVariants()) {
+                ProductVariant variant = new ProductVariant();
+                variant.setProduct(product);  // Set the product reference
 
-    public void delete(final UUID productID) {
-        productRepository.deleteById(productID);
-    }
+                // Set size
+                Size size = sizeRepository.findById(variantRequest.getSizeId())
+                        .orElseThrow(() -> new NotFoundException("Size not found"));
+                variant.setSize(size);
 
-    private ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
-        productDTO.setProductID(product.getProductID());
-        productDTO.setName(product.getName());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setPrice(product.getPrice());
-        productDTO.setStockQuantity(product.getStockQuantity());
-        productDTO.setCategory(product.getCategory() == null ? null : product.getCategory().getOrderItemID());
-        return productDTO;
-    }
+                // Set variant-specific attributes
+                variant.setStockQuantity(variantRequest.getStockQuantity());
+                variant.setPriceAdjustment(variantRequest.getPriceAdjustment());
 
-    private Product mapToEntity(final ProductDTO productDTO, final Product product) {
-        product.setName(productDTO.getName());
-        product.setDescription(productDTO.getDescription());
-        product.setPrice(productDTO.getPrice());
-        product.setStockQuantity(productDTO.getStockQuantity());
-        final Category category = productDTO.getCategory() == null ? null : categoryRepository.findById(productDTO.getCategory())
-                .orElseThrow(() -> new NotFoundException("category not found"));
-        product.setCategory(category);
-        return product;
-    }
+                // Save variant
+                variant = variantRepository.save(variant);
+                variants.add(variant);
+            }
 
-    public ReferencedWarning getReferencedWarning(final UUID productID) {
-        final ReferencedWarning referencedWarning = new ReferencedWarning();
-        final Product product = productRepository.findById(productID)
-                .orElseThrow(NotFoundException::new);
-        final OrderItem productOrderItem = orderItemRepository.findFirstByProduct(product);
-        if (productOrderItem != null) {
-            referencedWarning.setKey("product.orderItem.product.referenced");
-            referencedWarning.addParam(productOrderItem.getOrderItemID());
-            return referencedWarning;
+            // 5. Update the product with variants and save again
+            product.setVariants(variants);
+
+            // 6. Convert to DTO and add to the response list
+            createdProducts.add(mapToDTO(product));
         }
-        return null;
+
+        return createdProducts;
     }
+
+
+    public List<ProductDTO> findProducts(UUID categoryId, String sizeType) {
+        List<Product> products;
+        if (categoryId != null) {
+            products = productRepository.findByCategoryCategoryId(categoryId);
+        } else if (sizeType != null) {
+            products = productRepository.findByVariantsSizeSizeTypeName(sizeType);
+        } else {
+            products = productRepository.findAll();
+        }
+        return products.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public ProductDTO getProduct(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        return mapToDTO(product);
+    }
+
+    @Transactional
+    public void deleteProduct(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + productId));
+
+        productRepository.delete(product);
+    }
+
+
+
+
+    public List<ProductVariantDTO> getProductAvailability(UUID productId) {
+        return variantRepository.findByProductProductID(productId).stream()
+                .map(this::mapVariantToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductVariantDTO> updateVariats (List<ProductVariantDTO> variants) {
+        for (ProductVariantDTO variant : variants) {
+            ProductVariant productVariant = variantRepository.findById(variant.getVariantId())
+                    .orElseThrow(() -> new NotFoundException("Variant not found"));
+            productVariant.setStockQuantity(variant.getStockQuantity());
+            productVariant.setPriceAdjustment(variant.getPriceAdjustment());
+            variantRepository.save(productVariant);
+
+    }
+        return variants;
+    }
+
+    public ProductDTO mapToDTO(Product product) {
+        ProductDTO dto = new ProductDTO();
+        dto.setProductId(product.getProductID());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setBasePrice(product.getBasePrice());
+        dto.setCategoryName(product.getCategory().getCategoryName());
+        dto.setImageUrl(product.getImageUrl());
+        dto.setVariants(product.getVariants().stream()
+                .map(this::mapVariantToDTO)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    public ProductVariantDTO mapVariantToDTO(ProductVariant variant) {
+        ProductVariantDTO dto = new ProductVariantDTO();
+        dto.setVariantId(variant.getVariantId());
+        dto.setSize(variant.getSize().getValue());
+        dto.setStockQuantity(variant.getStockQuantity());
+        dto.setPriceAdjustment(variant.getPriceAdjustment());
+        return dto;
+    }
+
+
 
 }

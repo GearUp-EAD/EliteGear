@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import teamnova.elite_gear.domain.Order;
 import teamnova.elite_gear.domain.Shipping;
 import teamnova.elite_gear.model.ShippingDTO;
 import teamnova.elite_gear.repos.OrderRepository;
 import teamnova.elite_gear.repos.ShippingRepository;
 import teamnova.elite_gear.util.NotFoundException;
-import teamnova.elite_gear.util.ReferencedWarning;
 
 
 @Service
@@ -20,7 +20,7 @@ public class ShippingService {
     private final OrderRepository orderRepository;
 
     public ShippingService(final ShippingRepository shippingRepository,
-            final OrderRepository orderRepository) {
+                           final OrderRepository orderRepository) {
         this.shippingRepository = shippingRepository;
         this.orderRepository = orderRepository;
     }
@@ -38,6 +38,12 @@ public class ShippingService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public ShippingDTO getByOrderID(final UUID orderID) {
+        return shippingRepository.findByOrderOrderID(orderID)
+                .map(shipping -> mapToDTO(shipping, new ShippingDTO()))
+                .orElseThrow(NotFoundException::new);
+    }
+
     public UUID create(final ShippingDTO shippingDTO) {
         final Shipping shipping = new Shipping();
         mapToEntity(shippingDTO, shipping);
@@ -51,6 +57,11 @@ public class ShippingService {
         shippingRepository.save(shipping);
     }
 
+    @Transactional
+    public void updateShippingStatus(UUID shippingID, String newStatus) {
+        shippingRepository.updateShippingStatusByOrderID(shippingID, newStatus);
+    }
+
     public void delete(final UUID shippingID) {
         shippingRepository.deleteById(shippingID);
     }
@@ -60,27 +71,23 @@ public class ShippingService {
         shippingDTO.setShippingDate(shipping.getShippingDate());
         shippingDTO.setShippingAddress(shipping.getShippingAddress());
         shippingDTO.setShippingStatus(shipping.getShippingStatus());
+        shippingDTO.setOrder(shipping.getOrder() == null ? null : shipping.getOrder().getOrderID());
         return shippingDTO;
     }
+
 
     private Shipping mapToEntity(final ShippingDTO shippingDTO, final Shipping shipping) {
         shipping.setShippingDate(shippingDTO.getShippingDate());
         shipping.setShippingAddress(shippingDTO.getShippingAddress());
         shipping.setShippingStatus(shippingDTO.getShippingStatus());
+        final Order order = shippingDTO.getOrder() == null ? null : orderRepository.findById(shippingDTO.getOrder())
+                .orElseThrow(() -> new NotFoundException("order not found"));
+        shipping.setOrder(order);
         return shipping;
     }
 
-    public ReferencedWarning getReferencedWarning(final UUID shippingID) {
-        final ReferencedWarning referencedWarning = new ReferencedWarning();
-        final Shipping shipping = shippingRepository.findById(shippingID)
-                .orElseThrow(NotFoundException::new);
-        final Order shippingOrder = orderRepository.findFirstByShipping(shipping);
-        if (shippingOrder != null) {
-            referencedWarning.setKey("shipping.order.shipping.referenced");
-            referencedWarning.addParam(shippingOrder.getOrderID());
-            return referencedWarning;
-        }
-        return null;
+    public boolean orderExists(final UUID orderID) {
+        return shippingRepository.existsByOrderOrderID(orderID);
     }
 
 }

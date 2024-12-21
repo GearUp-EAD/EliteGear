@@ -5,9 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.james.mime4j.dom.datetime.DateTime;
 import org.hibernate.annotations.UuidGenerator;
 
 
@@ -29,10 +34,16 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String address;
 
-    @Column(nullable = false, unique = true)
+    @Column( unique = true)
     private Integer phoneNumber;
+
+    @Column
+    private LocalDateTime createdAt;
+
+    @Column
+    private String imageUrl;
 
 }
